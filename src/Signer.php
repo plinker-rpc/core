@@ -113,7 +113,7 @@ class Signer {
             $this->packet_state = 'unauthorised';
             return false;
         }
-        
+
     }
-    
+
 }
