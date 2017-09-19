@@ -15,7 +15,7 @@
     "require": {
         "php": ">=5.4",
         "plinker/base91": ">=0.1",
-        "rmccue/requests": ">=v1.6.1",
+        "rmccue/requests": "^1.7",
         "phpseclib/phpseclib": "^2.0",
         "opis/closure": "^2.2.0"
     },
