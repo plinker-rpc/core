@@ -3,7 +3,8 @@ namespace Plinker\Core;
 
 use Plinker\Base91\Base91;
 
-class Signer {
+class Signer
+{
 
     /**
      * Construct
@@ -98,7 +99,7 @@ class Signer {
         }
 
         if ($packet['public_key'] !== $this->publicKey) {
-        //    $this->packet_state = 'unauthorised public key';
+            //    $this->packet_state = 'unauthorised public key';
         //    return false;
         }
 
@@ -113,7 +114,5 @@ class Signer {
             $this->packet_state = 'unauthorised';
             return false;
         }
-
     }
-
 }

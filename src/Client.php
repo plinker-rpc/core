@@ -102,12 +102,12 @@ class Client
         // decode response
         $data = $signer->decode(
             $response->body
-        );        
+        );
 
         // handle response exceptions
         if ($response->body == 'unauthorised') {
             throw new \Exception('Unauthorised');
-        }        
+        }
 
         if ($response->body == 'missing public key') {
             throw new \Exception('Missing public key');
@@ -115,7 +115,7 @@ class Client
 
         if ($response->body == 'missing token key') {
             throw new \Exception('Missing token key');
-        }        
+        }
 
         if ($response->body == 'empty data') {
             throw new \Exception('Missing data');
@@ -128,5 +128,4 @@ class Client
         // unserialize data
         return unserialize($data['response']);
     }
-
 }

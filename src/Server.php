@@ -84,5 +84,4 @@ class Server
 
         return serialize($encoded);
     }
-
 }
