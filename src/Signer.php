@@ -2,6 +2,7 @@
 namespace Plinker\Core;
 
 use Plinker\Base91\Base91;
+use phpseclib\Crypt\AES;
 
 class Signer
 {
@@ -20,7 +21,7 @@ class Signer
 
         // set encryption
         if ($this->encrypt) {
-            $this->encryption = new \phpseclib\Crypt\AES();
+            $this->encryption = new AES();
             $this->encryption->setKey($this->privateKey);
         }
     }
@@ -37,7 +38,7 @@ class Signer
         $data = json_encode($packet);
 
         $packet = array(
-            'data'         => ($this->encrypt ? \Plinker\Base91\Base91::encode($this->encryption->encrypt($data)) : $data),
+            'data'         => ($this->encrypt ? Base91::encode($this->encryption->encrypt($data)) : $data),
             'public_key'   => $this->publicKey,
             'request_time' => time(),
             'encrypt'      => $this->encrypt
@@ -67,7 +68,7 @@ class Signer
         }
 
         if ($this->encrypt) {
-            $packet['data'] = $this->encryption->decrypt(\Plinker\Base91\Base91::decode($packet['data']));
+            $packet['data'] = $this->encryption->decrypt(Base91::decode($packet['data']));
         }
 
         return json_decode($packet['data'], true);
@@ -99,8 +100,8 @@ class Signer
         }
 
         if ($packet['public_key'] !== $this->publicKey) {
-            //    $this->packet_state = 'unauthorised public key';
-        //    return false;
+            //$this->packet_state = 'unauthorised public key';
+            //return false;
         }
 
         // authenticate packet signature/token
