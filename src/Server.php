@@ -24,10 +24,10 @@ class Server
         $config     = array()
     ) {
         // define vars
-        $this->post = $post;
-        $this->config = $config;
-        $this->publicKey = $publicKey;
-        $this->privateKey = $privateKey;
+        $this->post       = $post;
+        $this->config     = $config;
+        $this->publicKey  = hash('sha256', gmdate('h').$publicKey);
+        $this->privateKey = hash('sha256', gmdate('h').$privateKey);
         
         // init signer
         $this->signer = new Signer(

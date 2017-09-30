@@ -46,7 +46,7 @@ class Signer
         // set time into packet
         $packet['time'] = microtime(true);
 
-        $data = json_encode($packet);
+        $data = serialize($packet);
 
         $packet = array(
             'data'         => ($this->encrypt ? Base91::encode($this->encryption->encrypt($data)) : $data),
@@ -55,6 +55,7 @@ class Signer
             'encrypt'      => $this->encrypt
         );
 
+        // sign packet
         $packet['token'] = hash_hmac(
             'sha256',
             $packet['data'],
@@ -89,7 +90,7 @@ class Signer
             $packet['data'] = $this->encryption->decrypt(Base91::decode($packet['data']));
         }
 
-        return json_decode($packet['data'], true);
+        return unserialize($packet['data']);
     }
 
     /**
@@ -102,24 +103,22 @@ class Signer
     {
         $this->packet_state = 'valid';
 
+        // public key required
         if (empty($packet['public_key'])) {
-            $this->packet_state = 'missing public key';
+            $this->packet_state = 'public key required';
             return false;
         }
 
+        // token required
         if (empty($packet['token'])) {
-            $this->packet_state = 'missing token key';
+            $this->packet_state = 'token required';
             return false;
         }
 
+        // data required
         if (empty($packet['data'])) {
             $this->packet_state = 'empty data';
             return false;
-        }
-
-        if ($packet['public_key'] !== $this->publicKey) {
-            //$this->packet_state = 'unauthorised public key';
-            //return false;
         }
 
         // authenticate packet signature/token

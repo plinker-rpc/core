@@ -14,30 +14,32 @@ class Client
     private $privateKey;
     private $config;
     private $encrypt;
-    
+
     /**
-     * @param string $url
+     * @param string $endpoint
      * @param string $component
      * @param string $publicKey
      * @param string $privateKey
-     * @config array $config
+     * @param array $config
+     * @param bool $encrypt
      */
     public function __construct(
-        $url,
+        $endpoint,
         $component,
         $publicKey = '',
         $privateKey = '',
         $config = array(),
         $encrypt = true
     ) {
-        $this->endpoint   = $url;
+        // define vars
+        $this->endpoint   = $endpoint;
         $this->component  = $component;
-        $this->publicKey  = $publicKey;
-        $this->privateKey = $privateKey;
+        $this->publicKey  = hash('sha256', gmdate('h').$publicKey);
+        $this->privateKey = hash('sha256', gmdate('h').$privateKey);
         $this->config     = $config;
         $this->encrypt    = $encrypt;
         $this->response   = null;
-        
+
         // init signer
         $this->signer = new Signer($this->publicKey, $this->privateKey, $this->encrypt);
     }
@@ -100,8 +102,10 @@ class Client
         $this->response = Requests::post(
             $this->endpoint,
             array(
+                // send plinker header
+                'plinker' => true,
                 // sign token generated from encoded packet, send as header
-                'token' => hash_hmac('sha256', $encoded['token'], $this->privateKey)
+                'token'   => hash_hmac('sha256', $encoded['token'], $this->privateKey)
             ),
             $encoded,
             array(
@@ -116,12 +120,12 @@ class Client
 
         // initial unserialize response body
         $this->response->body = unserialize($this->response->body);
-        
+
         // decode response
         $this->response->data = $this->signer->decode(
             $this->response->body
         );
-        
+
         // verify response packet timing validity
         $this->response->data['packet_time'] = microtime(true) - $this->response->body['time'];
         if ($this->response->data['packet_time'] >= 1) {
