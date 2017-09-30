@@ -1,8 +1,16 @@
 <?php
 namespace Plinker\Core;
 
+/**
+ * Server endpoint class
+ */
 class Server
 {
+    private $post       = array();
+    private $config     = array();
+    private $publicKey  = '';
+    private $privateKey = '';
+    
     /**
      * @param string $post
      * @param string $publicKey
@@ -10,15 +18,23 @@ class Server
      * @param array  $config
      */
     public function __construct(
-        $post,
-        $publicKey = '',
+        $post       = array(),
+        $publicKey  = '',
         $privateKey = '',
-        $config = array()
+        $config     = array()
     ) {
+        // define vars
         $this->post = $post;
+        $this->config = $config;
         $this->publicKey = $publicKey;
         $this->privateKey = $privateKey;
-        $this->config = $config;
+        
+        // init signer
+        $this->signer = new Signer(
+            $this->publicKey,
+            $this->privateKey,
+            (!empty($this->post['encrypt']) ? true : false)
+        );
     }
 
     /**
@@ -26,14 +42,34 @@ class Server
      */
     public function execute()
     {
-        header('Access-Control-Allow-Origin: *');
-        header('Content-Type: application/json; charset=utf-8');
-
-        $encrypt = !empty($this->post['encrypt']) ? true : false;
+        header('Content-Type: text/plain; charset=utf-8');
         
-        $signer = new Signer($this->publicKey, $this->privateKey, $encrypt);
+        // check allowed ips
+        if (
+            !empty($this->config['allowed_ips']) &&
+            !in_array($_SERVER['REMOTE_ADDR'], $this->config['allowed_ips'])
+        ) {
+            return serialize($this->signer->encode(array(
+                'response' => [
+                    'error' => 'ip not allowed'
+                ]
+            )));
+        }
+        
+        // verify request token
+        if (
+            empty($this->post['token']) ||
+            empty($_SERVER['HTTP_TOKEN']) ||
+            hash_hmac('sha256', $this->post['token'], $this->privateKey) != $_SERVER['HTTP_TOKEN']
+        ) {
+            return serialize($this->signer->encode(array(
+                'response' => [
+                    'error' => 'invalid packet token'
+                ]
+            )));
+        }
 
-        $data = $signer->decode(
+        $data = $this->signer->decode(
             $this->post
         );
 
@@ -50,11 +86,19 @@ class Server
         }
 
         if (empty($data['component'])) {
-            return serialize('component class cannot be empty');
+            return serialize($this->signer->encode(array(
+                'response' => [
+                    'error' => 'component class cannot be empty'
+                ]
+            )));
         }
 
         if (empty($data['action'])) {
-            return serialize('action cannot be empty');
+            return serialize($this->signer->encode(array(
+                'response' => [
+                    'error' => 'action cannot be empty'
+                ]
+            )));
         }
 
         $class = '\\Plinker\\'.$data['component'];
@@ -76,12 +120,9 @@ class Server
         } else {
             $return = 'not implemented';
         }
-
-        $encoded = $signer->encode(array(
-            'time' => microtime(true),
-            'response' => serialize($return)
-        ));
-
-        return serialize($encoded);
+        
+        return serialize($this->signer->encode(array(
+            'response' => $return
+        )));
     }
 }

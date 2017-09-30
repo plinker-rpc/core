@@ -4,6 +4,9 @@ namespace Plinker\Core;
 use Plinker\Base91\Base91;
 use phpseclib\Crypt\AES;
 
+/**
+ * Payload signing class
+ */
 class Signer
 {
 
@@ -35,12 +38,20 @@ class Signer
      */
     public function encode($packet = array())
     {
+        // serialize response data
+        if (!empty($packet['response'])) {
+            $packet['response'] = serialize($packet['response']);
+        }
+        
+        // set time into packet
+        $packet['time'] = microtime(true);
+
         $data = json_encode($packet);
 
         $packet = array(
             'data'         => ($this->encrypt ? Base91::encode($this->encryption->encrypt($data)) : $data),
             'public_key'   => $this->publicKey,
-            'request_time' => time(),
+            'time'         => microtime(true),
             'encrypt'      => $this->encrypt
         );
 
@@ -62,9 +73,16 @@ class Signer
      */
     public function decode($packet = array())
     {
-        // packet validation
+        // failed packet validation
         if (!$this->authenticatePacket($packet)) {
-            return $this->packet_state;
+            // unset not needed response vars
+            unset($packet['data']);
+            unset($packet['public_key']);
+            unset($packet['token']);
+            unset($packet['encrypt']);
+
+            $packet['response'] = serialize(['error' => $this->packet_state]);
+            return $packet;
         }
 
         if ($this->encrypt) {

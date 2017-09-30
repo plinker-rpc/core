@@ -3,8 +3,18 @@ namespace Plinker\Core;
 
 use Requests;
 
+/**
+ * Client class
+ */
 class Client
 {
+    private $endpoint;
+    private $component;
+    private $publicKey;
+    private $privateKey;
+    private $config;
+    private $encrypt;
+    
     /**
      * @param string $url
      * @param string $component
@@ -20,12 +30,16 @@ class Client
         $config = array(),
         $encrypt = true
     ) {
-        $this->endpoint = $url;
-        $this->component = $component;
-        $this->publicKey = $publicKey;
+        $this->endpoint   = $url;
+        $this->component  = $component;
+        $this->publicKey  = $publicKey;
         $this->privateKey = $privateKey;
-        $this->config = $config;
-        $this->encrypt = $encrypt;
+        $this->config     = $config;
+        $this->encrypt    = $encrypt;
+        $this->response   = null;
+        
+        // init signer
+        $this->signer = new Signer($this->publicKey, $this->privateKey, $this->encrypt);
     }
 
     /**
@@ -38,8 +52,8 @@ class Client
     public function useComponent($component = '', $config = array(), $encrypt = true)
     {
         $this->component = $component;
-        $this->config = $config;
-        $this->encrypt = $encrypt;
+        $this->config    = $config;
+        $this->encrypt   = $encrypt;
 
         return new $this(
             $this->endpoint,
@@ -67,14 +81,13 @@ class Client
             throw new \Exception('Params must be given as array');
         }
 
+        // change params array into numeric
         $params = array_values($params);
 
-        $signer = new Signer($this->publicKey, $this->privateKey, $this->encrypt);
-        
         // unset local private key
         unset($this->config['plinker']['private_key']);
 
-        $encoded = $signer->encode(array(
+        $encoded = $this->signer->encode(array(
             'time' => microtime(true),
             'self' => $this->endpoint,
             'component' => $this->component,
@@ -83,9 +96,13 @@ class Client
             'params' => $params
         ));
 
-        $response = Requests::post(
+        // send request and store in response
+        $this->response = Requests::post(
             $this->endpoint,
-            array(),
+            array(
+                // sign token generated from encoded packet, send as header
+                'token' => hash_hmac('sha256', $encoded['token'], $this->privateKey)
+            ),
             $encoded,
             array(
                 'timeout' => (!empty($this->config['timeout']) ? (int) $this->config['timeout'] : 60),
@@ -93,39 +110,39 @@ class Client
         );
 
         // check response is a serialized string
-        if (@unserialize($response->body) === false) {
-            throw new \Exception('Could not unserialize response: '.$response->body);
+        if (@unserialize($this->response->body) === false) {
+            throw new \Exception('Could not unserialize response: '.$this->response->body);
         }
 
-        $response->body = unserialize($response->body);
+        // initial unserialize response body
+        $this->response->body = unserialize($this->response->body);
         
         // decode response
-        $data = $signer->decode(
-            $response->body
+        $this->response->data = $this->signer->decode(
+            $this->response->body
         );
-
-        // handle response exceptions
-        if ($response->body == 'unauthorised') {
-            throw new \Exception('Unauthorised');
+        
+        // verify response packet timing validity
+        $this->response->data['packet_time'] = microtime(true) - $this->response->body['time'];
+        if ($this->response->data['packet_time'] >= 1) {
+            throw new \Exception('Response timing packet check failed');
         }
 
-        if ($response->body == 'missing public key') {
-            throw new \Exception('Missing public key');
+        // verify data timing validity
+        $this->response->data['data_time'] = (microtime(true) - $this->response->data['time']);
+        if ($this->response->data['data_time'] >= 1) {
+            throw new \Exception('Response timing data check failed');
         }
 
-        if ($response->body == 'missing token key') {
-            throw new \Exception('Missing token key');
-        }
+        // decode response data
+        $this->response->data['response'] = unserialize($this->response->data['response']);
 
-        if ($response->body == 'empty data') {
-            throw new \Exception('Missing data');
-        }
-
-        if ($response->body == 'unauthorised public key') {
-            throw new \Exception('Unauthorised public key');
+        // check for errors
+        if (is_array($this->response->data['response']) && !empty($this->response->data['response']['error'])) {
+            throw new \Exception(ucfirst($this->response->data['response']['error']));
         }
 
         // unserialize data
-        return unserialize($data['response']);
+        return $this->response->data['response'];
     }
 }
