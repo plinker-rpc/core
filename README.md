@@ -18,8 +18,6 @@ Required base component which contains the client and server. (Its all you need 
 Making a remote call.
 --------------------
 
-WIP: To be updated with info on how to use this component, also add the tasks code.
-
 
     <?php
     require 'vendor/autoload.php';
