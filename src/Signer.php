@@ -24,8 +24,8 @@ class Signer
 
         // set encryption
         if ($this->encrypt) {
-            $this->encryption = new AES();
-            $this->encryption->setKey($this->privateKey);
+            $this->encryption = new AES(CRYPT_AES_MODE_ECB);
+            $this->encryption->setPassword($this->privateKey);
         }
     }
 
