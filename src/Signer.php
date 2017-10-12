@@ -19,7 +19,7 @@ class Signer
     public function __construct($publicKey = null, $privateKey = null, $encrypt = true)
     {
         $this->publicKey  = $publicKey;
-        $this->privateKey = $privateKey.(date('z') + 1);
+        $this->privateKey = $privateKey;
         $this->encrypt    = $encrypt;
 
         // set encryption
