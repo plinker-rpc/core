@@ -139,7 +139,13 @@ class Client
         }
 
         // decode response data
-        $this->response->data['response'] = unserialize($this->response->data['response']);
+        if (is_string($this->response->data['response'])) {
+            // check response is a serialized string
+            if (@unserialize($this->response->data['response']) === false) {
+                throw new \Exception('Could not unserialize response: '.$this->response->data['response']);
+            }
+            $this->response->data['response'] = unserialize($this->response->data['response']);
+        }
 
         // check for errors
         if (is_array($this->response->data['response']) && !empty($this->response->data['response']['error'])) {
