@@ -140,7 +140,11 @@ class Client
 
         // decode response data
         if (is_string($this->response->data['response'])) {
-            // check response is a serialized string
+            // empty data response
+            if (empty($this->response->data['response'])) {
+                return '';
+            }
+            // response should be a serialized string
             if (@unserialize($this->response->data['response']) === false) {
                 throw new \Exception('Could not unserialize response: '.$this->response->data['response']);
             }
