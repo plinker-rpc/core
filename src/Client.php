@@ -112,6 +112,8 @@ class Client
                 'timeout' => (!empty($this->config['timeout']) ? (int) $this->config['timeout'] : 60),
             )
         );
+        
+        print_r($this->response);
 
         // check response is a serialized string
         if (@unserialize($this->response->body) === false) {
