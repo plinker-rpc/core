@@ -1,0 +1,25 @@
+{
+    "name": "plinker/base91",
+    "description": "",
+    "license": "MIT",
+    "keywords": [],
+    "homepage": "https://github.com/plinker-rpc",
+    "authors": [
+        {
+            "name": "Lawrence Cherone",
+            "email": "lawrence@cherone.co.uk",
+            "homepage": "http://cherone.co.uk/",
+            "role": "Owner"
+        }
+    ],
+    "support": {
+        "email": "lawrence@cherone.co.uk"
+    },
+    "require": {
+    },
+    "autoload": {
+        "psr-4": {
+            "Plinker\\Base91\\": "src"
+        }
+    }
+}

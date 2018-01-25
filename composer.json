@@ -19,9 +19,22 @@
         "phpseclib/phpseclib": "^2.0",
         "opis/closure": "^2.2.0"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^6",
+        "victorjonsson/markdowndocs": "^1.3"
+    },
     "autoload": {
         "psr-4": {
             "Plinker\\Core\\": "src"
         }
-    }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Plinker\\Core\\Test\\": "tests"
+        }
+    },
+    "scripts": {
+        "test" : "bash ./tests/run.sh && $PWD/vendor/bin/phpdoc-md generate $PWD/src > $PWD/api.md"
+    },
+    "minimum-stability": "stable"
 }

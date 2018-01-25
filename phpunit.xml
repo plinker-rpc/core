@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         syntaxCheck="false">
+    <testsuites>
+        <testsuite name="Package Test Suite">
+            <directory>./tests/</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <directory suffix=".php">./</directory>
+            <exclude>
+                <directory>./tests</directory>
+                <directory>./vendor</directory>
+                <directory>./docs</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <const name="VENDOR_DIR" value="./vendor/"/>
+        <const name="SITE_ROOT" value="./"/>
+        <const name="SITE_NAME" value="Build Test Instance"/>
+        <const name="DB_HOSTNAME" value="127.0.0.1"/>
+        <const name="DB_DATABASE" value="app"/>
+        <const name="DB_USERNAME" value="app"/>
+        <const name="DB_PASSWORD" value=""/>
+        <const name="DB_FREEZE" value="false"/>
+        <const name="DB_DEBUG" value="true"/>
+        <const name="PRODUCTION" value="true"/>
+        <const name="TESTING" value="true"/>
+        <const name="SHOW_STEP" value="true"/>
+        <const name="TABLES" value="[]"/>
+        <server name="REMOTE_ADDR" value="100.100.100.100"/>
+    </php>
+</phpunit>

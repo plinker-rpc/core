@@ -10,18 +10,16 @@ Plinker PHP RPC client/server makes it really easy to link and execute PHP compo
 
 Required base component which contains the client and server. (Its all you need if you just want the client).
 
-**Composer**
+## Install
 
-    {
-    	"require": {
-    		"plinker/core": ">=v0.1"
-    	}
-    }
+Require this package with composer using the following command:
+
+``` bash
+$ composer require plinker/core
+```
 
 
-
-Making a remote call.
---------------------
+### Making a remote call.
 
 
     <?php
@@ -64,5 +62,29 @@ Making a remote call.
         );
         exit($server->execute());
     }
+    
+    
+## Testing
 
-See the [organisations page](https://github.com/plinker-rpc) for additional components.
+``` bash
+$ composer test
+```
+
+## Contributing
+
+Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+
+## Security
+
+If you discover any security related issues, please email lawrence@cherone.co.uk instead of using the issue tracker.
+
+## Credits
+
+- [Lawrence Cherone](https://github.com/lcherone)
+- [All Contributors][../../contributors]
+
+## License
+
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+
+See [organisations page](https://github.com/plinker-rpc) for additional components.
