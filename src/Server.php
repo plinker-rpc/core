@@ -51,7 +51,7 @@ class Server
         ) {
             return serialize($this->signer->encode(array(
                 'response' => [
-                    'error' => 'ip not allowed ('.$_SERVER['REMOTE_ADDR'].')'
+                    'error' => 'IP not in allowed list: '.$_SERVER['REMOTE_ADDR']
                 ]
             )));
         }

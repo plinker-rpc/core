@@ -115,7 +115,12 @@ class Client
 
         // check response is a serialized string
         if (@unserialize($this->response->body) === false) {
-            throw new \Exception('Could not unserialize response: '.$this->response->body);
+            if (empty($this->response->body)) {
+                $message = $this->response->raw;
+            } else {
+                $message = $this->response->body;
+            }
+            throw new \Exception('Could not unserialize response: '.$message);
         }
 
         // initial unserialize response body
