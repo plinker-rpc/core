@@ -1,6 +1,8 @@
 **Plinker-RPC - Core**
 =========
 
+[![StyleCI](https://styleci.io/repos/103975908/shield?branch=master)](https://styleci.io/repos/103975908)
+
 Plinker PHP RPC client/server makes it really easy to link and execute PHP component classes on remote systems, while maintaining the feel of a local method call.
 
 Required base component which contains the client and server. (Its all you need if you just want the client).
