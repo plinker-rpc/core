@@ -1,4 +1,5 @@
 <?php
+
 namespace Plinker\Core\Test;
 
 use PHPUnit\Framework\TestCase;
