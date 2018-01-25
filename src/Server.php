@@ -1,16 +1,17 @@
 <?php
+
 namespace Plinker\Core;
 
 /**
- * Server endpoint class
+ * Server endpoint class.
  */
 class Server
 {
-    private $post       = array();
-    private $config     = array();
-    private $publicKey  = '';
+    private $post = [];
+    private $config = [];
+    private $publicKey = '';
     private $privateKey = '';
-    
+
     /**
      * @param string $post
      * @param string $publicKey
@@ -18,17 +19,17 @@ class Server
      * @param array  $config
      */
     public function __construct(
-        $post       = array(),
-        $publicKey  = '',
+        $post = [],
+        $publicKey = '',
         $privateKey = '',
-        $config     = array()
+        $config = []
     ) {
         // define vars
-        $this->post       = $post;
-        $this->config     = $config;
-        $this->publicKey  = hash('sha256', gmdate('h').$publicKey);
+        $this->post = $post;
+        $this->config = $config;
+        $this->publicKey = hash('sha256', gmdate('h').$publicKey);
         $this->privateKey = hash('sha256', gmdate('h').$privateKey);
-        
+
         // init signer
         $this->signer = new Signer(
             $this->publicKey,
@@ -37,36 +38,33 @@ class Server
         );
     }
 
-    /**
-     *
-     */
     public function execute()
     {
         header('Content-Type: text/plain; charset=utf-8');
-        
+
         // check allowed ips
         if (
             !empty($this->config['allowed_ips']) &&
             !in_array($_SERVER['REMOTE_ADDR'], $this->config['allowed_ips'])
         ) {
-            return serialize($this->signer->encode(array(
+            return serialize($this->signer->encode([
                 'response' => [
-                    'error' => 'IP not in allowed list: '.$_SERVER['REMOTE_ADDR']
-                ]
-            )));
+                    'error' => 'IP not in allowed list: '.$_SERVER['REMOTE_ADDR'],
+                ],
+            ]));
         }
-        
+
         // verify request token
         if (
             empty($this->post['token']) ||
             empty($_SERVER['HTTP_TOKEN']) ||
             hash_hmac('sha256', $this->post['token'], $this->privateKey) != $_SERVER['HTTP_TOKEN']
         ) {
-            return serialize($this->signer->encode(array(
+            return serialize($this->signer->encode([
                 'response' => [
-                    'error' => 'invalid packet token'
-                ]
-            )));
+                    'error' => 'invalid packet token',
+                ],
+            ]));
         }
 
         $data = $this->signer->decode(
@@ -78,7 +76,7 @@ class Server
         }
 
         if (!isset($data['params'])) {
-            $data['params'] = array();
+            $data['params'] = [];
         }
 
         if (!empty($data['config'])) {
@@ -86,32 +84,32 @@ class Server
         }
 
         if (empty($data['component'])) {
-            return serialize($this->signer->encode(array(
+            return serialize($this->signer->encode([
                 'response' => [
-                    'error' => 'component class cannot be empty'
-                ]
-            )));
+                    'error' => 'component class cannot be empty',
+                ],
+            ]));
         }
 
         if (empty($data['action'])) {
-            return serialize($this->signer->encode(array(
+            return serialize($this->signer->encode([
                 'response' => [
-                    'error' => 'action cannot be empty'
-                ]
-            )));
+                    'error' => 'action cannot be empty',
+                ],
+            ]));
         }
 
         $class = '\\Plinker\\'.$data['component'];
 
         if (class_exists($class)) {
-            $componentClass = new $class($this->config+$data+$this->post);
+            $componentClass = new $class($this->config + $data + $this->post);
 
             if (method_exists($componentClass, $data['action'])) {
                 $return = call_user_func(
-                    array(
+                    [
                         $componentClass,
-                        $data['action']
-                    ),
+                        $data['action'],
+                    ],
                     $data['params']
                 );
             } else {
@@ -120,9 +118,9 @@ class Server
         } else {
             $return = 'not implemented';
         }
-        
-        return serialize($this->signer->encode(array(
-            'response' => $return
-        )));
+
+        return serialize($this->signer->encode([
+            'response' => $return,
+        ]));
     }
 }

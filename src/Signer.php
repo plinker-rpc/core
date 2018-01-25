@@ -1,26 +1,26 @@
 <?php
+
 namespace Plinker\Core;
 
-use Plinker\Base91\Base91;
 use phpseclib\Crypt\AES;
+use Plinker\Base91\Base91;
 
 /**
- * Payload signing class
+ * Payload signing class.
  */
 class Signer
 {
-
     /**
-     * Construct
+     * Construct.
      *
      * @param string $publicKey
      * @param string $privateKey
      */
     public function __construct($publicKey = null, $privateKey = null, $encrypt = true)
     {
-        $this->publicKey  = $publicKey;
+        $this->publicKey = $publicKey;
         $this->privateKey = $privateKey;
-        $this->encrypt    = $encrypt;
+        $this->encrypt = $encrypt;
 
         // set encryption
         if ($this->encrypt) {
@@ -31,29 +31,30 @@ class Signer
 
     /**
      * Payload encode/encrypt
-     * Encodes and signs the payload packet
+     * Encodes and signs the payload packet.
      *
      * @param array $signer
+     *
      * @return array
      */
-    public function encode($packet = array())
+    public function encode($packet = [])
     {
         // serialize response data
         if (!empty($packet['response'])) {
             $packet['response'] = serialize($packet['response']);
         }
-        
+
         // set time into packet
         $packet['time'] = microtime(true);
 
         $data = serialize($packet);
 
-        $packet = array(
+        $packet = [
             'data'         => ($this->encrypt ? Base91::encode($this->encryption->encrypt($data)) : $data),
             'public_key'   => $this->publicKey,
             'time'         => microtime(true),
-            'encrypt'      => $this->encrypt
-        );
+            'encrypt'      => $this->encrypt,
+        ];
 
         // sign packet
         $packet['token'] = hash_hmac(
@@ -67,12 +68,13 @@ class Signer
 
     /**
      * Payload decode/decrypt
-     * Validates and decodes payload packet
+     * Validates and decodes payload packet.
      *
      * @param array $signer
+     *
      * @return object
      */
-    public function decode($packet = array())
+    public function decode($packet = [])
     {
         // failed packet validation
         if (!$this->authenticatePacket($packet)) {
@@ -83,6 +85,7 @@ class Signer
             unset($packet['encrypt']);
 
             $packet['response'] = serialize(['error' => $this->packet_state]);
+
             return $packet;
         }
 
@@ -94,30 +97,34 @@ class Signer
     }
 
     /**
-     * Authenticate payload packet
+     * Authenticate payload packet.
      *
      * @param array $signer
+     *
      * @return bool
      */
-    public function authenticatePacket($packet = array())
+    public function authenticatePacket($packet = [])
     {
         $this->packet_state = 'valid';
 
         // public key required
         if (empty($packet['public_key'])) {
             $this->packet_state = 'public key required';
+
             return false;
         }
 
         // token required
         if (empty($packet['token'])) {
             $this->packet_state = 'token required';
+
             return false;
         }
 
         // data required
         if (empty($packet['data'])) {
             $this->packet_state = 'empty data';
+
             return false;
         }
 
@@ -130,6 +137,7 @@ class Signer
             return true;
         } else {
             $this->packet_state = 'unauthorised';
+
             return false;
         }
     }
