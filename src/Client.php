@@ -1,10 +1,11 @@
 <?php
+
 namespace Plinker\Core;
 
 use Requests;
 
 /**
- * Client class
+ * Client class.
  */
 class Client
 {
@@ -20,25 +21,25 @@ class Client
      * @param string $component
      * @param string $publicKey
      * @param string $privateKey
-     * @param array $config
-     * @param bool $encrypt
+     * @param array  $config
+     * @param bool   $encrypt
      */
     public function __construct(
         $endpoint,
         $component,
         $publicKey = '',
         $privateKey = '',
-        $config = array(),
+        $config = [],
         $encrypt = true
     ) {
         // define vars
-        $this->endpoint   = $endpoint;
-        $this->component  = $component;
-        $this->publicKey  = hash('sha256', gmdate('h').$publicKey);
+        $this->endpoint = $endpoint;
+        $this->component = $component;
+        $this->publicKey = hash('sha256', gmdate('h').$publicKey);
         $this->privateKey = hash('sha256', gmdate('h').$privateKey);
-        $this->config     = $config;
-        $this->encrypt    = $encrypt;
-        $this->response   = null;
+        $this->config = $config;
+        $this->encrypt = $encrypt;
+        $this->response = null;
 
         // init signer
         $this->signer = new Signer($this->publicKey, $this->privateKey, $this->encrypt);
@@ -46,16 +47,16 @@ class Client
 
     /**
      * Helper which changes the server component on the fly without changing
-     * the connection
+     * the connection.
      *
      * @param string $component - component class namespace
      * @param array  $config    - component array
      */
-    public function useComponent($component = '', $config = array(), $encrypt = true)
+    public function useComponent($component = '', $config = [], $encrypt = true)
     {
         $this->component = $component;
-        $this->config    = $config;
-        $this->encrypt   = $encrypt;
+        $this->config = $config;
+        $this->encrypt = $encrypt;
 
         return new $this(
             $this->endpoint,
@@ -68,7 +69,7 @@ class Client
     }
 
     /**
-     * Magic caller
+     * Magic caller.
      *
      * @param string $action
      * @param array  $params
@@ -89,28 +90,28 @@ class Client
         // unset local private key
         unset($this->config['plinker']['private_key']);
 
-        $encoded = $this->signer->encode(array(
-            'time' => microtime(true),
-            'self' => $this->endpoint,
+        $encoded = $this->signer->encode([
+            'time'      => microtime(true),
+            'self'      => $this->endpoint,
             'component' => $this->component,
-            'config' => $this->config,
-            'action' => $action,
-            'params' => $params
-        ));
+            'config'    => $this->config,
+            'action'    => $action,
+            'params'    => $params,
+        ]);
 
         // send request and store in response
         $this->response = Requests::post(
             $this->endpoint,
-            array(
+            [
                 // send plinker header
                 'plinker' => true,
                 // sign token generated from encoded packet, send as header
-                'token'   => hash_hmac('sha256', $encoded['token'], $this->privateKey)
-            ),
+                'token'   => hash_hmac('sha256', $encoded['token'], $this->privateKey),
+            ],
             $encoded,
-            array(
+            [
                 'timeout' => (!empty($this->config['timeout']) ? (int) $this->config['timeout'] : 60),
-            )
+            ]
         );
 
         // check response is a serialized string
@@ -120,6 +121,7 @@ class Client
             } else {
                 $message = $this->response->body;
             }
+
             throw new \Exception('Could not unserialize response: '.$message);
         }
 
