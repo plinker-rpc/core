@@ -2,6 +2,7 @@
 =========
 
 [![Latest Version](https://img.shields.io/github/release/plinker-rpc/core.svg?style=flat-square)](https://github.com/plinker-rpc/core/releases)
+[![Build Status](https://travis-ci.org/plinker-rpc/core.svg?branch=master)](https://travis-ci.org/plinker-rpc/core)
 [![StyleCI](https://styleci.io/repos/103975908/shield?branch=master)](https://styleci.io/repos/103975908)
 [![Total Downloads](https://img.shields.io/packagist/dt/plinker-rpc/core.svg?style=flat-square)](https://packagist.org/packages/plinker-rpc/core)
 
