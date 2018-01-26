@@ -43,17 +43,12 @@ class Server
      *
      * @return bool
      */
-    final private function checkAllowedIp()
+    final private function checkAllowedIps()
     {
-        // check allowed ips
-        if (
+        return !(
             !empty($this->config['allowed_ips']) &&
             !in_array($_SERVER['REMOTE_ADDR'], $this->config['allowed_ips'])
-        ) {
-            return false;
-        }
-        
-        return true;
+        );
     }
     
     /**
@@ -63,15 +58,11 @@ class Server
      */
     final private function verifyRequestToken()
     {
-        if (
+        return !(
             empty($this->post['token']) ||
             empty($_SERVER['HTTP_TOKEN']) ||
             hash_hmac('sha256', $this->post['token'], $this->privateKey) != $_SERVER['HTTP_TOKEN']
-        ) {
-            return false;
-        }
-        
-        return true;
+        );
     }
 
     /**
@@ -84,12 +75,12 @@ class Server
         // set response header
         header('Content-Type: text/plain; charset=utf-8');
 
-        // check
-        if (!$this->checkAllowedIp()) {
+        // check allowed ips
+        if (!$this->checkAllowedIps()) {
             return serialize($this->signer->encode([
                 'response' => [
                     'error' => 'IP not in allowed list: '.$_SERVER['REMOTE_ADDR'],
-                ],
+                ]
             ]));
         }
 
@@ -98,7 +89,7 @@ class Server
             return serialize($this->signer->encode([
                 'response' => [
                     'error' => 'invalid request token',
-                ],
+                ]
             ]));
         }
 
@@ -128,7 +119,7 @@ class Server
             return serialize($this->signer->encode([
                 'response' => [
                     'error' => $error.' cannot be empty',
-                ],
+                ]
             ]));
         }
 
@@ -141,7 +132,7 @@ class Server
                 $return = call_user_func(
                     [
                         $componentClass,
-                        $data['action'],
+                        $data['action']
                     ],
                     $data['params']
                 );
