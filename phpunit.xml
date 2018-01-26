@@ -26,6 +26,7 @@
     </filter>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <env name="TEST_CONDITION" value="normal"/>
     </php>
     <logging>
         <log type="tap" target="build/report.tap"/>

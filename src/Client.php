@@ -69,6 +69,121 @@ class Client
             $this->encrypt
         );
     }
+    
+    /**
+     * Call endpoint
+     * 
+     * @param string $encoded
+     * @param array  $params
+     * @return mixed
+     */
+    final private function callEndpoint($encoded, $params = [])
+    {
+        // testing
+        if (getenv('APP_ENV') === 'testing') {
+            // good
+            $response = new \stdClass();
+            $response->body = serialize($this->signer->encode([
+                'response' => $params,
+            ]));
+            
+            // fail
+            if (getenv('TEST_CONDITION') === 'http_empty_response') {
+                $response->raw = 'Testing fail';
+                $response->body = null;
+            }
+            
+            // fail
+            if (getenv('TEST_CONDITION') === 'http_invalid_response') {
+                $response->raw = 'Testing fail';
+                $response->body = 'Invalid text response';
+            }
+        } 
+        // normal request, store in response
+        else {
+            // @codeCoverageIgnoreStart
+            $response = Requests::post(
+                $this->endpoint,
+                [
+                    // send plinker header
+                    'plinker' => true,
+                    // sign token generated from encoded packet, send as header
+                    'token'   => hash_hmac('sha256', $encoded['token'], $this->privateKey),
+                ],
+                $encoded,
+                [
+                    'timeout' => (!empty($this->config['timeout']) ? (int) $this->config['timeout'] : 60),
+                ]
+            );
+            // @codeCoverageIgnoreEnd
+        }
+        
+        return $response;
+    }
+    
+    /**
+     * Decode response
+     * 
+     * @param string $encoded
+     * @param array  $params
+     * @return mixed
+     */
+    final private function decodeResponse($response)
+    {
+        // check response is a serialized string
+        if (@unserialize($response->body) === false) {
+            if (empty($response->body)) {
+                $message = $response->raw;
+            } else {
+                // @codeCoverageIgnoreStart
+                $message = $response->body;
+                // @codeCoverageIgnoreEnd
+            }
+
+            throw new \Exception('Could not unserialize response: '.$message);
+        }
+
+        // initial unserialize response body
+        $response->body = unserialize($response->body);
+        
+        // testing - http_slow_response
+        if (getenv('APP_ENV') === 'testing') {
+            // fail
+            if (getenv('TEST_CONDITION') === 'http_slow_packet_response') {
+                $response->body['time'] = $response->body['time']-5;
+            }
+        }
+
+        // decode response
+        $return  = $this->signer->decode(
+            $response->body
+        );
+        
+        // testing - http_slow_response
+        if (getenv('APP_ENV') === 'testing') {
+            // fail
+            if (getenv('TEST_CONDITION') === 'http_slow_data_response') {
+                $return['time'] = $return['time']-5;
+            }
+            
+            // fail
+            if (getenv('TEST_CONDITION') === 'data_empty_response') {
+                $return['response'] = '';
+            }  
+            
+            // fail
+            if (getenv('TEST_CONDITION') === 'data_invalid_response') {
+                $return['response'] = 'Response not serialized';
+            }   
+            
+            // fail
+            if (getenv('TEST_CONDITION') === 'data_error_response') {
+                $return['response'] = serialize(['error' => 'Error from component']);
+            }
+        }
+
+        return $return;
+    }
 
     /**
      * Magic caller.
@@ -103,47 +218,11 @@ class Client
             'params'    => $params,
         ]);
 
-        // send request and store in response
-        if (getenv('APP_ENV') !== 'testing') {
-            $this->response = Requests::post(
-                $this->endpoint,
-                [
-                    // send plinker header
-                    'plinker' => true,
-                    // sign token generated from encoded packet, send as header
-                    'token'   => hash_hmac('sha256', $encoded['token'], $this->privateKey),
-                ],
-                $encoded,
-                [
-                    'timeout' => (!empty($this->config['timeout']) ? (int) $this->config['timeout'] : 60),
-                ]
-            );
-        } else {
-            // testing
-            $this->response = new \stdClass();
-            $this->response->body = serialize($this->signer->encode([
-                'response' => $params,
-            ]));
-        }
-
-        // check response is a serialized string
-        if (@unserialize($this->response->body) === false) {
-            if (empty($this->response->body)) {
-                $message = $this->response->raw;
-            } else {
-                $message = $this->response->body;
-            }
-
-            throw new \Exception('Could not unserialize response: '.$message);
-        }
-
-        // initial unserialize response body
-        $this->response->body = unserialize($this->response->body);
+        // call endpoint
+        $this->response = $this->callEndpoint($encoded, $params);
 
         // decode response
-        $response = $this->signer->decode(
-            $this->response->body
-        );
+        $response = $this->decodeResponse($this->response);
 
         // verify response packet timing validity
         $response['packet_time'] = microtime(true) - $this->response->body['time'];

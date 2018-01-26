@@ -15,6 +15,11 @@ class ClientTest extends TestCase
      * @var class config
      */
     private $plinker_config;
+    
+    /**
+     * @var test params
+     */
+    private $expected_params = ['a', 'b', 'c'];
 
     /**
      * Test that true does in fact equal true.
@@ -80,16 +85,16 @@ class ClientTest extends TestCase
         $this->assertClassHasAttribute('encrypt', '\Plinker\Core\Client');
         $this->assertClassHasAttribute('response', '\Plinker\Core\Client');
         $this->assertClassHasAttribute('signer', '\Plinker\Core\Client');
-        
+
         // check client instance
         $this->assertInstanceOf('\Plinker\Core\Client', $this->plinker);
-        
+
         // check signer class instance
         $this->assertInstanceOf(
             'Plinker\Core\Signer',
             \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'signer')
         );
-        
+
         // check keys
         // - public
         $this->assertEquals(
@@ -101,7 +106,7 @@ class ClientTest extends TestCase
             hash('sha256', gmdate('h').$this->plinker_config['plinker']['private_key']),
             \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'privateKey')
         );
-        
+
         // check types
         $this->assertInternalType('string', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'endpoint'));
         $this->assertInternalType('string', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'component'));
@@ -111,7 +116,7 @@ class ClientTest extends TestCase
         $this->assertInternalType('bool', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'encrypt'));
         $this->assertInternalType('null', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'response'));
     }
-    
+
     /**
      *
      */
@@ -122,18 +127,18 @@ class ClientTest extends TestCase
           method_exists($this->plinker, 'useComponent'),
           'Go Mental! useComponent does not exist!'
         );
-        
+
         // call new component
         $new_plinker = $this->plinker->useComponent('Foo\Bar', $this->plinker_config['plinker']);
 
         // check client instance
         $this->assertInstanceOf('\Plinker\Core\Client', $new_plinker);
-        
+
         // check types
         $this->assertInternalType('string', \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'component'));
         $this->assertInternalType('array', \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'config'));
         $this->assertInternalType('bool', \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'encrypt'));
-        
+
         // check values
         $this->assertEquals('Foo\Bar', \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'component'));
         $this->assertEquals($this->plinker_config['plinker'], \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'config'));
@@ -144,7 +149,7 @@ class ClientTest extends TestCase
             \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'signer')
         );
     }
-    
+
     /**
      *
      */
@@ -157,7 +162,7 @@ class ClientTest extends TestCase
             $this->assertInstanceOf('InvalidArgumentException', $e);
             $this->assertEquals('Method name has no scalar value', $e->getMessage());
         }
-        
+
         // $params
         try {
             $this->plinker->__call('', '');
@@ -166,37 +171,127 @@ class ClientTest extends TestCase
             $this->assertEquals('Arguments must be given as array', $e->getMessage());
         }
     }
-    
+
     /**
      *
      */
     public function testCallComponentMethod()
     {
-        $expected_params = ['a', 'b', 'c'];
-        
+        $this->expected_params = ['a', 'b', 'c'];
+
         // test __call
-        $_call = $this->plinker->__call('componentMethod', $expected_params);
+        $_call = $this->plinker->__call('componentMethod', $this->expected_params);
         $this->assertInternalType('array', $_call);
-        $this->assertEquals($expected_params, $_call);
-        
+        $this->assertEquals($this->expected_params, $_call);
+
         // test normal - (argument unpacking)
-        $_normal = $this->plinker->componentMethod(...$expected_params);
+        $_normal = $this->plinker->componentMethod(...$this->expected_params);
         $this->assertInternalType('array', $_normal);
-        $this->assertEquals($expected_params, $_normal);
-        
+        $this->assertEquals($this->expected_params, $_normal);
+
         // now both should be the same
         $this->assertEquals($_call, $_normal);
-        
+
         // test normal - (normal arguments)
         $_normal = $this->plinker->componentMethod(
-            $expected_params[0],
-            $expected_params[1],
-            $expected_params[2]
+            $this->expected_params[0],
+            $this->expected_params[1],
+            $this->expected_params[2]
         );
         $this->assertInternalType('array', $_normal);
-        $this->assertEquals($expected_params, $_normal);
-        
+        $this->assertEquals($this->expected_params, $_normal);
+
         // now both should be the same
         $this->assertEquals($_call, $_normal);
+    }
+
+    /**
+     *
+     */
+    public function testHttpError()
+    {
+        $this->expected_params = ['a', 'b', 'c'];
+
+        // set test fail condition - http_empty_response
+        putenv('TEST_CONDITION=http_empty_response');
+
+        try {
+            $_failed = $this->plinker->componentMethod(...$this->expected_params);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf('Exception', $e);
+            $this->assertEquals('Could not unserialize response: Testing fail', $e->getMessage());
+        }
+
+        // set test fail condition - http_invalid_response
+        putenv('TEST_CONDITION=http_invalid_response');
+
+        try {
+            $_failed = $this->plinker->componentMethod(...$this->expected_params);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf('Exception', $e);
+            $this->assertEquals('Could not unserialize response: Invalid text response', $e->getMessage());
+        }
+        
+        // set test fail condition - http_slow_packet_response
+        putenv('TEST_CONDITION=http_slow_packet_response');
+
+        try {
+            $_failed = $this->plinker->componentMethod(...$this->expected_params);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf('Exception', $e);
+            $this->assertEquals('Response timing packet check failed', $e->getMessage());
+        }
+    }
+    
+    /**
+     *
+     */
+    public function testDataError()
+    {
+        $this->expected_params = ['a', 'b', 'c'];
+        
+        // set test fail condition - http_slow_data_response
+        putenv('TEST_CONDITION=http_slow_data_response');
+        
+        try {
+            $_failed = $this->plinker->componentMethod(...$this->expected_params);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf('Exception', $e);
+            $this->assertEquals('Response timing data check failed', $e->getMessage());
+        }
+        
+        // set test fail condition - data_empty_response
+        putenv('TEST_CONDITION=data_empty_response');
+
+        $_failed = $this->plinker->componentMethod(...$this->expected_params);
+        $this->assertEquals('', $_failed);
+        
+        // set test fail condition - data_empty_response
+        putenv('TEST_CONDITION=data_invalid_response');
+
+        try {
+            $_failed = $this->plinker->componentMethod(...$this->expected_params);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf('Exception', $e);
+            $this->assertEquals('Could not unserialize response: Response not serialized', $e->getMessage());
+        }
+    }
+    
+    /**
+     *
+     */
+    public function testResponseError()
+    {
+        $this->expected_params = ['a', 'b', 'c'];
+        
+        // set test fail condition - data_error_response
+        putenv('TEST_CONDITION=data_error_response');
+
+        try {
+            $_failed = $this->plinker->componentMethod(...$this->expected_params);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf('Exception', $e);
+            $this->assertEquals('Error from component', $e->getMessage());
+        }
     }
 }
