@@ -102,13 +102,3 @@ checks:
         avoid_closing_tag: true
         assignment_of_null_return: true
         argument_type_checks: true
-build:
-    nodes:
-        tests: true
-        analysis:
-            tests:
-                override:
-                    -
-                        command: phpcs-run
-                        use_website_config: true
-                    - php-scrutinizer-run
