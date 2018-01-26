@@ -41,7 +41,7 @@
         }
     },
     "scripts": {
-        "test" : "bash ./tests/run.sh && $PWD/vendor/bin/phpdoc-md generate $PWD/src > $PWD/api.md"
+        "test" : "bash ./tests/run.sh && ./vendor/bin/phpdoc-md generate ./src > ./api.md"
     },
     "minimum-stability": "stable"
 }
