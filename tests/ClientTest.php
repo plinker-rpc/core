@@ -167,6 +167,9 @@ class ClientTest extends TestCase
         }
     }
     
+    /**
+     * 
+     */
     public function testCallComponentMethod()
     {
         $expected_params = ['a', 'b', 'c'];
