@@ -104,19 +104,27 @@ class Client
         ]);
 
         // send request and store in response
-        $this->response = Requests::post(
-            $this->endpoint,
-            [
-                // send plinker header
-                'plinker' => true,
-                // sign token generated from encoded packet, send as header
-                'token'   => hash_hmac('sha256', $encoded['token'], $this->privateKey),
-            ],
-            $encoded,
-            [
-                'timeout' => (!empty($this->config['timeout']) ? (int) $this->config['timeout'] : 60),
-            ]
-        );
+        if (getenv('APP_ENV') !== 'testing') {
+            $this->response = Requests::post(
+                $this->endpoint,
+                [
+                    // send plinker header
+                    'plinker' => true,
+                    // sign token generated from encoded packet, send as header
+                    'token'   => hash_hmac('sha256', $encoded['token'], $this->privateKey),
+                ],
+                $encoded,
+                [
+                    'timeout' => (!empty($this->config['timeout']) ? (int) $this->config['timeout'] : 60),
+                ]
+            );
+        } else {
+            // testing
+            $this->response = new \stdClass();
+            $this->response->body = serialize($this->signer->encode([
+                'response' => $params,
+            ]));
+        }
 
         // check response is a serialized string
         if (@unserialize($this->response->body) === false) {

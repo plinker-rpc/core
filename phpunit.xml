@@ -25,16 +25,7 @@
         </whitelist>
     </filter>
     <php>
-        <const name="VENDOR_DIR" value="./vendor/"/>
-        <const name="SITE_ROOT" value="./"/>
-        <const name="SITE_NAME" value="Build Test Instance"/>
-        <const name="DB_HOSTNAME" value="127.0.0.1"/>
-        <const name="DB_DATABASE" value="app"/>
-        <const name="DB_USERNAME" value="app"/>
-        <const name="DB_PASSWORD" value=""/>
-        <const name="DB_FREEZE" value="false"/>
-        <const name="DB_DEBUG" value="true"/>
-        <const name="TESTING" value="true"/>
+        <env name="APP_ENV" value="testing"/>
     </php>
     <logging>
         <log type="tap" target="build/report.tap"/>

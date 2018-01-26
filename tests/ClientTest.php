@@ -72,28 +72,28 @@ class ClientTest extends TestCase
     public function testClientConstruct()
     {
         // check defined
-        $this->assertClassHasAttribute('endpoint', '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('component', '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('publicKey', '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('endpoint',   '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('component',  '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('publicKey',  '\Plinker\Core\Client');
         $this->assertClassHasAttribute('privateKey', '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('config', '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('encrypt', '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('response', '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('signer', '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('config',     '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('encrypt',    '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('response',   '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('signer',     '\Plinker\Core\Client');
         
         // check client instance
         $this->assertInstanceOf('\Plinker\Core\Client', $this->plinker);
         
         // check signer class instance
         $this->assertInstanceOf(
-            'Plinker\Core\Signer',
+            'Plinker\Core\Signer', 
             \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'signer')
         );
         
         // check keys
         // - public
         $this->assertEquals(
-            hash('sha256', gmdate('h').$this->plinker_config['plinker']['public_key']),
+            hash('sha256', gmdate('h').$this->plinker_config['plinker']['public_key']), 
             \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'publicKey')
         );
         // - private
@@ -148,23 +148,8 @@ class ClientTest extends TestCase
     /**
      *
      */
-    public function testMagicCallerInvalidArgumentExceptions()
+    public function testCallInvalidArgumentException()
     {
-        /*
-        // Create a stub for the SomeClass class.
-        $stub = $this->getMockBuilder('Plinker\Core\Client')
-                     ->disableOriginalConstructor()
-                     ->disableOriginalClone()
-                     ->disableArgumentCloning()
-                     ->getMock();
-
-        // Configure the stub.
-        $stub->method('__call')
-             ->will($this->throwException(new \InvalidArgumentException));
-
-        //$this->setExpectedException('InvalidArgumentException');
-        */
-        
         // $action
         try {
             $this->plinker->__call([], []);
@@ -182,24 +167,34 @@ class ClientTest extends TestCase
         }
     }
     
+    public function testCallComponentMethod()
+    {
+        $expected_params = ['a', 'b', 'c'];
+        
+        // test __call
+        $_call = $this->plinker->__call('componentMethod', $expected_params);
+        $this->assertInternalType('array', $_call);
+        $this->assertEquals($expected_params, $_call); 
+        
+        // test normal - (argument unpacking)
+        $_normal = $this->plinker->componentMethod(...$expected_params);
+        $this->assertInternalType('array', $_normal);
+        $this->assertEquals($expected_params, $_normal);
+        
+        // now both should be the same
+        $this->assertEquals($_call, $_normal);
+        
+        // test normal - (normal arguments)
+        $_normal = $this->plinker->componentMethod(
+            $expected_params[0],
+            $expected_params[1],
+            $expected_params[2]
+        );
+        $this->assertInternalType('array', $_normal);
+        $this->assertEquals($expected_params, $_normal);
+        
+        // now both should be the same
+        $this->assertEquals($_call, $_normal);
+    }
 
-    /**
-     * unset container
-     */
-    /*
-    public function tearDown()
-    {
-        unset($this->client);
-    }
-    */
-    /**
-     * has class initialised?
-     */
-    /*
-    public function testObjectInstanceOf()
-    {
-        $this->assertInstanceOf('App\Framework\App', $this->app);
-        $this->assertInstanceOf('App\Framework\Helpers', $this->app->helper);
-    }
-    */
 }
