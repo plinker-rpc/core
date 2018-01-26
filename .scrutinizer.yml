@@ -115,4 +115,8 @@ build:
             tests:
                 override:
                     - php-scrutinizer-run --enable-security-analysis
-                    - ./vendor/bin/phpunit --configuration phpunit.xml --coverage-text
+                    -
+                        command: 'vendor/bin/phpunit --coverage-clover=build/logs/clover.xml'
+                        coverage:
+                            file: 'build/logs/clover.xml'
+                            format: 'clover'
