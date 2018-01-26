@@ -11,6 +11,31 @@ use Plinker\Base91\Base91;
 class Signer
 {
     /**
+     * @var
+     */
+    private $publicKey;
+
+    /**
+     * @var
+     */
+    private $privateKey;
+
+    /**
+     * @var
+     */
+    private $encrypt;
+
+    /**
+     * @var
+     */
+    private $encryption;
+
+    /**
+     * @var
+     */
+    private $packet_state;
+
+    /**
      * Construct.
      *
      * @param string $publicKey
@@ -33,7 +58,7 @@ class Signer
      * Payload encode/encrypt
      * Encodes and signs the payload packet.
      *
-     *
+     * @param array $signer
      * @return array
      */
     public function encode($packet = [])
@@ -69,8 +94,8 @@ class Signer
      * Payload decode/decrypt
      * Validates and decodes payload packet.
      *
-     *
-     * @return object
+     * @param array $signer
+     * @return array
      */
     public function decode($packet = [])
     {
@@ -97,7 +122,7 @@ class Signer
     /**
      * Authenticate payload packet.
      *
-     *
+     * @param array $packet
      * @return bool
      */
     public function authenticatePacket($packet = [])
