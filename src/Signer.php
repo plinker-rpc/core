@@ -33,7 +33,6 @@ class Signer
      * Payload encode/encrypt
      * Encodes and signs the payload packet.
      *
-     * @param array $signer
      *
      * @return array
      */
@@ -70,7 +69,6 @@ class Signer
      * Payload decode/decrypt
      * Validates and decodes payload packet.
      *
-     * @param array $signer
      *
      * @return object
      */
@@ -99,7 +97,6 @@ class Signer
     /**
      * Authenticate payload packet.
      *
-     * @param array $signer
      *
      * @return bool
      */
