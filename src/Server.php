@@ -37,16 +37,55 @@ class Server
             (!empty($this->post['encrypt']) ? true : false)
         );
     }
-
-    public function execute()
+    
+    /**
+     * Check client IP is in allowed list if allowed list is set.
+     * 
+     * @return bool
+     */
+    final private function checkAllowedIp()
     {
-        header('Content-Type: text/plain; charset=utf-8');
-
         // check allowed ips
         if (
             !empty($this->config['allowed_ips']) &&
             !in_array($_SERVER['REMOTE_ADDR'], $this->config['allowed_ips'])
         ) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Check client IP is in allowed list if allowed list is set.
+     * 
+     * @return bool
+     */
+    final private function verifyRequestToken()
+    {
+        if (
+            empty($this->post['token']) ||
+            empty($_SERVER['HTTP_TOKEN']) ||
+            hash_hmac('sha256', $this->post['token'], $this->privateKey) != $_SERVER['HTTP_TOKEN']
+        ) {
+            return false;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Server exection method.
+     * 
+     * @return string
+     */
+    public function execute()
+    {
+        // set response header
+        header('Content-Type: text/plain; charset=utf-8');
+
+        // check 
+        if (!$this->checkAllowedIp()) {
             return serialize($this->signer->encode([
                 'response' => [
                     'error' => 'IP not in allowed list: '.$_SERVER['REMOTE_ADDR'],
@@ -55,46 +94,40 @@ class Server
         }
 
         // verify request token
-        if (
-            empty($this->post['token']) ||
-            empty($_SERVER['HTTP_TOKEN']) ||
-            hash_hmac('sha256', $this->post['token'], $this->privateKey) != $_SERVER['HTTP_TOKEN']
-        ) {
+        if (!$this->verifyRequestToken()) {
             return serialize($this->signer->encode([
                 'response' => [
-                    'error' => 'invalid packet token',
+                    'error' => 'invalid request token',
                 ],
             ]));
         }
 
+        // decode post payload
         $data = $this->signer->decode(
             $this->post
         );
 
+        // check client post is an array
         if (!is_array($data)) {
             return serialize($data);
         }
 
+        // check data params array or set
         if (!isset($data['params'])) {
             $data['params'] = [];
         }
 
+        // check data config array, set into scope
         if (!empty($data['config'])) {
             $this->config = $data['config'];
         }
 
-        if (empty($data['component'])) {
+        // check for empty
+        if (empty($data['component']) || empty($data['action'])) {
+            $error = empty($data['component']) ? 'component class' : 'action';
             return serialize($this->signer->encode([
                 'response' => [
-                    'error' => 'component class cannot be empty',
-                ],
-            ]));
-        }
-
-        if (empty($data['action'])) {
-            return serialize($this->signer->encode([
-                'response' => [
-                    'error' => 'action cannot be empty',
+                    'error' => $error.' cannot be empty',
                 ],
             ]));
         }
