@@ -105,6 +105,8 @@ build:
     dependencies:
         # Runs before inferred commands
         before:
+            - 'sudo apt-get install php7.0-xdebug'
+            - 'sudo phpenmod xdebug'
             - 'composer install'
     environment:
         php: '7.0.20'
@@ -115,3 +117,4 @@ build:
             tests:
                 override:
                     - php-scrutinizer-run --enable-security-analysis
+                    - ./vendor/bin/phpunit --configuration phpunit.xml --coverage-text
