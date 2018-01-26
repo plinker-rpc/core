@@ -72,21 +72,21 @@ class Client
      * Magic caller.
      *
      * @param string $action
-     * @param array  $arguments
+     * @param array  $params
      * @return mixed
      */
-    public function __call($action, $arguments)
+    public function __call($action, $params)
     {
         if (!is_scalar($action)) {
             throw new \InvalidArgumentException('Method name has no scalar value');
         }
 
-        if (!is_array($arguments)) {
+        if (!is_array($params)) {
             throw new \InvalidArgumentException('Arguments must be given as array');
         }
 
         // change arguments array into numeric indexed
-        $arguments = array_values($arguments);
+        $params = array_values($params);
 
         // unset local private key
         unset($this->config['plinker']['private_key']);
@@ -98,7 +98,7 @@ class Client
             'component' => $this->component,
             'config'    => $this->config,
             'action'    => $action,
-            'params'    => $arguments,
+            'params'    => $params,
         ]);
 
         // send request and store in response
