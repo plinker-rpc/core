@@ -88,6 +88,6 @@ If you discover any security related issues, please contact me via https://chero
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). Please see [License File](LICENSE) for more information.
 
 See [organisations page](https://github.com/plinker-rpc) for additional components.
