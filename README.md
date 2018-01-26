@@ -81,7 +81,7 @@ If you discover any security related issues, please email lawrence@cherone.co.uk
 ## Credits
 
 - [Lawrence Cherone](https://github.com/lcherone)
-- [All Contributors][../../contributors]
+- [All Contributors](../../contributors)
 
 ## License
 
