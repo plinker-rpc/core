@@ -3,6 +3,7 @@
 
 [![Build Status](https://travis-ci.org/plinker-rpc/core.svg?branch=master)](https://travis-ci.org/plinker-rpc/core)
 [![StyleCI](https://styleci.io/repos/103975908/shield?branch=master)](https://styleci.io/repos/103975908)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/plinker-rpc/core/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/plinker-rpc/core/?branch=master)
 [![Packagist Version](https://img.shields.io/packagist/v/plinker/core.svg?style=flat-square)](https://github.com/plinker-rpc/core/releases)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/plinker/core.svg?style=flat-square)](https://packagist.org/packages/plinker/core)
 
