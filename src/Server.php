@@ -7,6 +7,7 @@ namespace Plinker\Core;
  */
 class Server
 {
+    private $signer;
     private $post = [];
     private $config = [];
     private $publicKey = '';

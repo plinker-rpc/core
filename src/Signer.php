@@ -95,7 +95,7 @@ class Signer
      * Validates and decodes payload packet.
      *
      * @param array $signer
-     * @return array
+     * @return mixed
      */
     public function decode($packet = [])
     {
