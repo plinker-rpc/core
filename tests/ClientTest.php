@@ -72,28 +72,28 @@ class ClientTest extends TestCase
     public function testClientConstruct()
     {
         // check defined
-        $this->assertClassHasAttribute('endpoint',   '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('component',  '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('publicKey',  '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('endpoint', '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('component', '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('publicKey', '\Plinker\Core\Client');
         $this->assertClassHasAttribute('privateKey', '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('config',     '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('encrypt',    '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('response',   '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('signer',     '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('config', '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('encrypt', '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('response', '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('signer', '\Plinker\Core\Client');
         
         // check client instance
         $this->assertInstanceOf('\Plinker\Core\Client', $this->plinker);
         
         // check signer class instance
         $this->assertInstanceOf(
-            'Plinker\Core\Signer', 
+            'Plinker\Core\Signer',
             \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'signer')
         );
         
         // check keys
         // - public
         $this->assertEquals(
-            hash('sha256', gmdate('h').$this->plinker_config['plinker']['public_key']), 
+            hash('sha256', gmdate('h').$this->plinker_config['plinker']['public_key']),
             \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'publicKey')
         );
         // - private
@@ -177,7 +177,7 @@ class ClientTest extends TestCase
         // test __call
         $_call = $this->plinker->__call('componentMethod', $expected_params);
         $this->assertInternalType('array', $_call);
-        $this->assertEquals($expected_params, $_call); 
+        $this->assertEquals($expected_params, $_call);
         
         // test normal - (argument unpacking)
         $_normal = $this->plinker->componentMethod(...$expected_params);
@@ -199,5 +199,4 @@ class ClientTest extends TestCase
         // now both should be the same
         $this->assertEquals($_call, $_normal);
     }
-
 }
