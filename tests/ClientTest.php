@@ -72,33 +72,33 @@ class ClientTest extends TestCase
     public function testClientConstruct()
     {
         // check defined
-        $this->assertClassHasAttribute('endpoint',   '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('component',  '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('publicKey',  '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('endpoint', '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('component', '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('publicKey', '\Plinker\Core\Client');
         $this->assertClassHasAttribute('privateKey', '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('config',     '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('encrypt',    '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('response',   '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('signer',     '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('config', '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('encrypt', '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('response', '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('signer', '\Plinker\Core\Client');
         
         // check client instance
         $this->assertInstanceOf('\Plinker\Core\Client', $this->plinker);
         
         // check signer class instance
         $this->assertInstanceOf(
-            'Plinker\Core\Signer', 
+            'Plinker\Core\Signer',
             \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'signer')
         );
         
         // check keys
         // - public
         $this->assertEquals(
-            hash('sha256', gmdate('h').$this->plinker_config['plinker']['public_key']), 
+            hash('sha256', gmdate('h').$this->plinker_config['plinker']['public_key']),
             \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'publicKey')
         );
         // - private
         $this->assertEquals(
-            hash('sha256', gmdate('h').$this->plinker_config['plinker']['private_key']), 
+            hash('sha256', gmdate('h').$this->plinker_config['plinker']['private_key']),
             \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'privateKey')
         );
         
@@ -107,19 +107,19 @@ class ClientTest extends TestCase
         $this->assertInternalType('string', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'component'));
         $this->assertInternalType('string', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'publicKey'));
         $this->assertInternalType('string', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'privateKey'));
-        $this->assertInternalType('array',  \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'config'));
-        $this->assertInternalType('bool',   \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'encrypt'));
-        $this->assertInternalType('null',   \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'response'));
+        $this->assertInternalType('array', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'config'));
+        $this->assertInternalType('bool', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'encrypt'));
+        $this->assertInternalType('null', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'response'));
     }
     
     /**
-     * 
+     *
      */
     public function testUseComponent()
     {
         // sanity
         $this->assertTrue(
-          method_exists($this->plinker, 'useComponent'), 
+          method_exists($this->plinker, 'useComponent'),
           'Go Mental! useComponent does not exist!'
         );
         
@@ -131,22 +131,22 @@ class ClientTest extends TestCase
         
         // check types
         $this->assertInternalType('string', \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'component'));
-        $this->assertInternalType('array',  \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'config'));
-        $this->assertInternalType('bool',   \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'encrypt'));
+        $this->assertInternalType('array', \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'config'));
+        $this->assertInternalType('bool', \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'encrypt'));
         
         // check values
-        $this->assertEquals('Foo\Bar', \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'component')); 
-        $this->assertEquals($this->plinker_config['plinker'], \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'config')); 
+        $this->assertEquals('Foo\Bar', \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'component'));
+        $this->assertEquals($this->plinker_config['plinker'], \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'config'));
 
         // check signer is still there
         $this->assertInstanceOf(
-            'Plinker\Core\Signer', 
+            'Plinker\Core\Signer',
             \PHPUnit\Framework\Assert::readAttribute($new_plinker, 'signer')
         );
     }
     
     /**
-     * 
+     *
      */
     public function testMagicCallerInvalidArgumentExceptions()
     {
@@ -161,7 +161,7 @@ class ClientTest extends TestCase
         // Configure the stub.
         $stub->method('__call')
              ->will($this->throwException(new \InvalidArgumentException));
-             
+
         //$this->setExpectedException('InvalidArgumentException');
         */
         
