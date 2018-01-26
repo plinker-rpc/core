@@ -168,7 +168,7 @@ class ClientTest extends TestCase
     }
     
     /**
-     * 
+     *
      */
     public function testCallComponentMethod()
     {
