@@ -72,7 +72,7 @@ class Client
     
     /**
      * Call endpoint
-     * 
+     *
      * @param string $encoded
      * @param array  $params
      * @return mixed
@@ -98,7 +98,7 @@ class Client
                 $response->raw = 'Testing fail';
                 $response->body = 'Invalid text response';
             }
-        } 
+        }
         // normal request, store in response
         else {
             // @codeCoverageIgnoreStart
@@ -123,7 +123,7 @@ class Client
     
     /**
      * Decode response
-     * 
+     *
      * @param string $encoded
      * @param array  $params
      * @return mixed
@@ -169,12 +169,12 @@ class Client
             // fail
             if (getenv('TEST_CONDITION') === 'data_empty_response') {
                 $return['response'] = '';
-            }  
+            }
             
             // fail
             if (getenv('TEST_CONDITION') === 'data_invalid_response') {
                 $return['response'] = 'Response not serialized';
-            }   
+            }
             
             // fail
             if (getenv('TEST_CONDITION') === 'data_error_response') {
