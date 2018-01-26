@@ -40,7 +40,7 @@ class Server
     
     /**
      * Check client IP is in allowed list if allowed list is set.
-     * 
+     *
      * @return bool
      */
     final private function checkAllowedIp()
@@ -58,7 +58,7 @@ class Server
     
     /**
      * Check client IP is in allowed list if allowed list is set.
-     * 
+     *
      * @return bool
      */
     final private function verifyRequestToken()
@@ -76,7 +76,7 @@ class Server
 
     /**
      * Server exection method.
-     * 
+     *
      * @return string
      */
     public function execute()
@@ -84,7 +84,7 @@ class Server
         // set response header
         header('Content-Type: text/plain; charset=utf-8');
 
-        // check 
+        // check
         if (!$this->checkAllowedIp()) {
             return serialize($this->signer->encode([
                 'response' => [
