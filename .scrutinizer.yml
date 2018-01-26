@@ -101,3 +101,17 @@ checks:
         avoid_closing_tag: true
         assignment_of_null_return: true
         argument_type_checks: true
+build:
+    dependencies:
+        # Runs before inferred commands
+        before:
+            - 'composer install'
+    environment:
+        php: '7.0.20'
+    nodes:
+        analysis:
+            project_setup:
+                override: true
+            tests:
+                override:
+                    - php-scrutinizer-run --enable-security-analysis
