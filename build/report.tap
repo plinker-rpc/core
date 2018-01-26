@@ -1,6 +1,0 @@
-TAP version 13
-ok 1 - Plinker\Core\ClientTest::testTrueIsTrue
-ok 2 - Plinker\Core\ClientTest::testClientConstruct
-ok 3 - Plinker\Core\ClientTest::testUseComponent
-ok 4 - Plinker\Core\ClientTest::testMagicCallerInvalidArgumentExceptions
-1..4
