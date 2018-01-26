@@ -5,7 +5,7 @@ namespace Plinker\Core;
 use Requests;
 
 /**
- * Client class.
+ * Plinker Client
  */
 class Client
 {
@@ -15,6 +15,8 @@ class Client
     private $privateKey;
     private $config;
     private $encrypt;
+    private $response;
+    private $signer;
 
     /**
      * @param string $endpoint

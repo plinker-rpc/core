@@ -1,5 +1,4 @@
 <?php
-
 @unlink('/tmp/testdb.db');
 
 include './vendor/autoload.php';
