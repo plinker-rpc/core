@@ -71,7 +71,7 @@ class Server
             return false;
         }
         
-        return false;
+        return true;
     }
 
     /**
