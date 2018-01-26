@@ -72,31 +72,33 @@ class Client
      * Magic caller.
      *
      * @param string $action
-     * @param array  $params
+     * @param array  $arguments
+     * @return mixed
      */
-    public function __call($action, $params)
+    public function __call($action, $arguments)
     {
         if (!is_scalar($action)) {
-            throw new \Exception('Method name has no scalar value');
+            throw new \InvalidArgumentException('Method name has no scalar value');
         }
 
-        if (!is_array($params)) {
-            throw new \Exception('Params must be given as array');
+        if (!is_array($arguments)) {
+            throw new \InvalidArgumentException('Arguments must be given as array');
         }
 
-        // change params array into numeric
-        $params = array_values($params);
+        // change arguments array into numeric indexed
+        $arguments = array_values($arguments);
 
         // unset local private key
         unset($this->config['plinker']['private_key']);
 
+        // encode payload
         $encoded = $this->signer->encode([
             'time'      => microtime(true),
             'self'      => $this->endpoint,
             'component' => $this->component,
             'config'    => $this->config,
             'action'    => $action,
-            'params'    => $params,
+            'params'    => $arguments,
         ]);
 
         // send request and store in response
@@ -129,41 +131,41 @@ class Client
         $this->response->body = unserialize($this->response->body);
 
         // decode response
-        $this->response->data = $this->signer->decode(
+        $response = $this->signer->decode(
             $this->response->body
         );
 
         // verify response packet timing validity
-        $this->response->data['packet_time'] = microtime(true) - $this->response->body['time'];
-        if ($this->response->data['packet_time'] >= 1) {
+        $response['packet_time'] = microtime(true) - $this->response->body['time'];
+        if ($response['packet_time'] >= 1) {
             throw new \Exception('Response timing packet check failed');
         }
 
         // verify data timing validity
-        $this->response->data['data_time'] = (microtime(true) - $this->response->data['time']);
-        if ($this->response->data['data_time'] >= 1) {
+        $response['data_time'] = (microtime(true) - $response['time']);
+        if ($response['data_time'] >= 1) {
             throw new \Exception('Response timing data check failed');
         }
 
         // decode response data
-        if (is_string($this->response->data['response'])) {
+        if (is_string($response['response'])) {
             // empty data response
-            if (empty($this->response->data['response'])) {
+            if (empty($response['response'])) {
                 return '';
             }
             // response should be a serialized string
-            if (@unserialize($this->response->data['response']) === false) {
-                throw new \Exception('Could not unserialize response: '.$this->response->data['response']);
+            if (@unserialize($response['response']) === false) {
+                throw new \Exception('Could not unserialize response: '.$response['response']);
             }
-            $this->response->data['response'] = unserialize($this->response->data['response']);
+            $response['response'] = unserialize($response['response']);
         }
 
         // check for errors
-        if (is_array($this->response->data['response']) && !empty($this->response->data['response']['error'])) {
-            throw new \Exception(ucfirst($this->response->data['response']['error']));
+        if (is_array($response['response']) && !empty($response['response']['error'])) {
+            throw new \Exception(ucfirst($response['response']['error']));
         }
 
         // unserialize data
-        return $this->response->data['response'];
+        return $response['response'];
     }
 }
