@@ -4,7 +4,6 @@ namespace Plinker\Core\Lib;
 
 final class Signer
 {
-
     private $config;
 
     /**

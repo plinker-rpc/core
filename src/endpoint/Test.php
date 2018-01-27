@@ -25,7 +25,7 @@ namespace Plinker\Core\Endpoint;
  * @see https://github.com/lxc-systems/lxd/blob/master/lxd/endpoints/images.zep
  */
 final class Test
-{    
+{
     /**
      * Class construct.
      *
@@ -35,7 +35,6 @@ final class Test
      */
     public function __construct($config)
     {
-        
     }
 
     /**
@@ -62,5 +61,4 @@ final class Test
     {
         return disk_total_space($path);
     }
-
 }

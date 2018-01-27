@@ -84,7 +84,7 @@ final class Client
         // load curl
         if (!$this->curl) {
             $this->curl = new Curl($this->config);
-        }  
+        }
         
         // load signer
         if (!$this->signer) {
@@ -111,5 +111,4 @@ final class Client
         // unserialize data
         return unserialize($this->response);
     }
-
 }
