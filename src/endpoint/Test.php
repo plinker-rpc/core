@@ -38,17 +38,11 @@ final class Test
     }
 
     /**
-     * Get diskspace
-     *
-     * @param  string $path
-     * @return int
+     * 
      */
-    public function disk_space($path = "/")
+    public function this()
     {
-        $ds = disk_total_space($path);
-        $df = disk_free_space($path);
-
-        return ($df > 0 && $ds > 0 && $df < $ds) ? floor($df/$ds * 100) : 0;
+        return $this;
     }
     
     /**

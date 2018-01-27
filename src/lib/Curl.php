@@ -54,9 +54,9 @@ final class Curl
         $this->options[CURLOPT_POSTFIELDS] = $parameters;
 
         //
-        if (!empty(headers)) {
+        if (!empty($headers)) {
             foreach ($headers as $header) {
-                $this->options[CURLOPT_HTTPHEADER][] = header;
+                $this->options[CURLOPT_HTTPHEADER][] = $header;
             }
         }
 

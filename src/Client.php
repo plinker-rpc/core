@@ -60,7 +60,7 @@ final class Client
      */
     public function __get($method)
     {
-        $this->component = method;
+        $this->component = $method;
 
         return $this;
     }
@@ -73,11 +73,11 @@ final class Client
      */
     public function __call($action, array $params)
     {
-        if (!is_scalar(action)) {
+        if (!is_scalar($action)) {
             throw new \Exception("Method name has no scalar value");
         }
         
-        if (!is_array(params)) {
+        if (!is_array($params)) {
             throw new \Exception("Params must be given as array");
         }
         
@@ -107,7 +107,10 @@ final class Client
         $this->response = $this->curl->post($this->config["server"], $payload, [
             "PLINKER: ".$payload["token"]
         ]);
-
+        
+        print_r($this->response);
+        
+    
         // unserialize data
         return unserialize($this->response);
     }

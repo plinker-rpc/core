@@ -2,7 +2,7 @@
 
 namespace Plinker\Core;
 
-use Plinker\Lib\Signer;
+use Plinker\Core\Lib\Signer;
 
 final class Server
 {
@@ -151,8 +151,8 @@ final class Server
         }
 
         // component is plinker endpoint
-        $ns = "\\Plinker\\Endpoint\\".$this->post["component"];
-        
+        $ns = "\\Plinker\\Core\\Endpoint\\".ucfirst($this->post["component"]);
+
         if (class_exists($ns)) {
             //
             $response = $this->execute($ns, $action);
