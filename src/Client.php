@@ -72,58 +72,34 @@ class Client
     
     /**
      * Call endpoint
-     * 
+     *
+     * @codeCoverageIgnore
+     * @access private
      * @param string $encoded
      * @param array  $params
      * @return mixed
      */
     final private function callEndpoint($encoded, $params = [])
     {
-        // testing
-        if (getenv('APP_ENV') === 'testing') {
-            // good
-            $response = new \stdClass();
-            $response->body = serialize($this->signer->encode([
-                'response' => $params,
-            ]));
-            
-            // fail
-            if (getenv('TEST_CONDITION') === 'http_empty_response') {
-                $response->raw = 'Testing fail';
-                $response->body = null;
-            }
-            
-            // fail
-            if (getenv('TEST_CONDITION') === 'http_invalid_response') {
-                $response->raw = 'Testing fail';
-                $response->body = 'Invalid text response';
-            }
-        } 
-        // normal request, store in response
-        else {
-            // @codeCoverageIgnoreStart
-            $response = Requests::post(
-                $this->endpoint,
-                [
-                    // send plinker header
-                    'plinker' => true,
-                    // sign token generated from encoded packet, send as header
-                    'token'   => hash_hmac('sha256', $encoded['token'], $this->privateKey),
-                ],
-                $encoded,
-                [
-                    'timeout' => (!empty($this->config['timeout']) ? (int) $this->config['timeout'] : 60),
-                ]
-            );
-            // @codeCoverageIgnoreEnd
-        }
-        
-        return $response;
+        return Requests::post(
+            $this->endpoint,
+            [
+                // send plinker header
+                'plinker' => true,
+                // sign token generated from encoded packet, send as header
+                'token'   => hash_hmac('sha256', $encoded['token'], $this->privateKey),
+            ],
+            $encoded,
+            [
+                'timeout' => (!empty($this->config['timeout']) ? (int) $this->config['timeout'] : 60),
+            ]
+        );
     }
     
     /**
      * Decode response
-     * 
+     *
+     * @codeCoverageIgnore
      * @param string $encoded
      * @param array  $params
      * @return mixed
@@ -135,9 +111,7 @@ class Client
             if (empty($response->body)) {
                 $message = $response->raw;
             } else {
-                // @codeCoverageIgnoreStart
                 $message = $response->body;
-                // @codeCoverageIgnoreEnd
             }
 
             throw new \Exception('Could not unserialize response: '.$message);
@@ -145,49 +119,59 @@ class Client
 
         // initial unserialize response body
         $response->body = unserialize($response->body);
-        
-        // testing - http_slow_response
-        if (getenv('APP_ENV') === 'testing') {
-            // fail
-            if (getenv('TEST_CONDITION') === 'http_slow_packet_response') {
-                $response->body['time'] = $response->body['time']-5;
-            }
-        }
 
         // decode response
-        $return  = $this->signer->decode(
+        return $this->signer->decode(
             $response->body
         );
-        
-        // testing - http_slow_response
-        if (getenv('APP_ENV') === 'testing') {
-            // fail
-            if (getenv('TEST_CONDITION') === 'http_slow_data_response') {
-                $return['time'] = $return['time']-5;
-            }
-            
-            // fail
-            if (getenv('TEST_CONDITION') === 'data_empty_response') {
-                $return['response'] = '';
-            }  
-            
-            // fail
-            if (getenv('TEST_CONDITION') === 'data_invalid_response') {
-                $return['response'] = 'Response not serialized';
-            }   
-            
-            // fail
-            if (getenv('TEST_CONDITION') === 'data_error_response') {
-                $return['response'] = serialize(['error' => 'Error from component']);
-            }
+    } 
+    
+    /**
+     * Validate response
+     *
+     * @codeCoverageIgnore
+     * @param array  $response
+     * @return array
+     */
+    final private function validateResponse($response)
+    {
+        // verify response packet timing validity
+        $response['packet_time'] = microtime(true) - $this->response->body['time'];
+        if ($response['packet_time'] >= 1) {
+            throw new \Exception('Response timing packet check failed');
         }
 
+        // verify data timing validity
+        $response['data_time'] = (microtime(true) - $response['time']);
+        if ($response['data_time'] >= 1) {
+            throw new \Exception('Response timing data check failed');
+        }
+
+        // decode response data
+        if (is_string($response['response'])) {
+            // empty data response
+            if (empty($response['response'])) {
+                return $response;
+            }
+            // response should be a serialized string
+            if (@unserialize($response['response']) === false) {
+                throw new \Exception('Could not unserialize response: '.$response['response']);
+            }
+            $response['response'] = unserialize($response['response']);
+        }
+
+        // check for errors
+        if (is_array($response['response']) && !empty($response['response']['error'])) {
+            throw new \Exception(ucfirst($response['response']['error']));
+        }
+        
         return $return;
     }
 
     /**
      * Magic caller.
      *
+     * @codeCoverageIgnore
      * @param string $action
      * @param array  $params
      * @return mixed
@@ -223,36 +207,9 @@ class Client
 
         // decode response
         $response = $this->decodeResponse($this->response);
-
-        // verify response packet timing validity
-        $response['packet_time'] = microtime(true) - $this->response->body['time'];
-        if ($response['packet_time'] >= 1) {
-            throw new \Exception('Response timing packet check failed');
-        }
-
-        // verify data timing validity
-        $response['data_time'] = (microtime(true) - $response['time']);
-        if ($response['data_time'] >= 1) {
-            throw new \Exception('Response timing data check failed');
-        }
-
-        // decode response data
-        if (is_string($response['response'])) {
-            // empty data response
-            if (empty($response['response'])) {
-                return '';
-            }
-            // response should be a serialized string
-            if (@unserialize($response['response']) === false) {
-                throw new \Exception('Could not unserialize response: '.$response['response']);
-            }
-            $response['response'] = unserialize($response['response']);
-        }
-
-        // check for errors
-        if (is_array($response['response']) && !empty($response['response']['error'])) {
-            throw new \Exception(ucfirst($response['response']['error']));
-        }
+        
+        // validate response
+        $response = $this->validateResponse($response);
 
         // unserialize data
         return $response['response'];

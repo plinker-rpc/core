@@ -72,7 +72,8 @@ class ClientTest extends TestCase
     }
 
     /**
-     *
+     * // ATSIGNcodeCoverageIgnoreStart
+     * // ATSIGNcodeCoverageIgnoreEnd
      */
     public function testClientConstruct()
     {
@@ -175,7 +176,7 @@ class ClientTest extends TestCase
     /**
      *
      */
-    public function testCallComponentMethod()
+    /*public function testCallComponentMethod()
     {
         $this->expected_params = ['a', 'b', 'c'];
 
@@ -203,11 +204,38 @@ class ClientTest extends TestCase
 
         // now both should be the same
         $this->assertEquals($_call, $_normal);
-    }
+    }*/
+    
+    /*
+    public function testCallEndpoint()
+    {
+        $response = new \stdClass();
+        $response->body = serialize(\PHPUnit\Framework\Assert::readAttribute($this->plinker, 'signer')->encode([
+            'response' => [],
+        ]));
+            
+        // Create a stub for the SomeClass class.
+        $stub = $this->getMockBuilder('\Plinker\Core\Client')
+                     ->disableOriginalConstructor()
+                     ->disableOriginalClone()
+                     ->disableArgumentCloning()
+                     ->getMock();
 
+        // Configure the stub.
+        $stub->method('callEndpoint')
+             ->willReturn($response);
+             
+        print_r($stub->callEndpoint('encoded', []));
+
+        // Calling $stub->doSomething() will now return
+        // 'foo'.
+        $this->assertEquals($response, $stub->callEndpoint('encoded', []));
+    }
+*/
     /**
      *
      */
+    /*
     public function testHttpError()
     {
         $this->expected_params = ['a', 'b', 'c'];
@@ -242,10 +270,12 @@ class ClientTest extends TestCase
             $this->assertEquals('Response timing packet check failed', $e->getMessage());
         }
     }
+    */
     
     /**
      *
      */
+    /*
     public function testDataError()
     {
         $this->expected_params = ['a', 'b', 'c'];
@@ -276,10 +306,12 @@ class ClientTest extends TestCase
             $this->assertEquals('Could not unserialize response: Response not serialized', $e->getMessage());
         }
     }
+    */
     
     /**
      *
      */
+    /*
     public function testResponseError()
     {
         $this->expected_params = ['a', 'b', 'c'];
@@ -294,4 +326,5 @@ class ClientTest extends TestCase
             $this->assertEquals('Error from component', $e->getMessage());
         }
     }
+    */
 }
