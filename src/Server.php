@@ -102,9 +102,11 @@ final class Server
         }
         
         //
-        $response = null; $ns = null; $action = $this->post["action"];
+        $response = null;
+        $ns = null;
+        $action = $this->post["action"];
         $this->config = array_merge(
-            $this->config, 
+            $this->config,
             $this->post
         );
         
@@ -118,7 +120,7 @@ final class Server
             //
             if (!empty($this->config["classes"][$this->post["component"]][1])) {
                 $this->config = array_merge(
-                    $this->config, 
+                    $this->config,
                     $this->config["classes"][$this->post["component"]][1]
                 );
             }
@@ -225,5 +227,4 @@ final class Server
         
         return $response;
     }
-
 }

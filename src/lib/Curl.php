@@ -30,7 +30,7 @@ final class Curl
                 "Content-Type: application/json"
             ]
         ];
-    } 
+    }
 
     /**
      *  POST
@@ -55,9 +55,9 @@ final class Curl
 
         //
         if (!empty(headers)) {
-            foreach($headers as $header) {
+            foreach ($headers as $header) {
                 $this->options[CURLOPT_HTTPHEADER][] = header;
-            } 
+            }
         }
 
         //
@@ -80,5 +80,4 @@ final class Curl
         //
         return $body;
     }
-
 }
