@@ -2,216 +2,113 @@
 
 namespace Plinker\Core;
 
-use Requests;
+use Plinker\Core\Lib\Curl;
+use Plinker\Core\Lib\Signer;
 
-/**
- * Plinker Client
- */
-class Client
+final class Client
 {
-    private $endpoint;
+    /**
+     * @var
+     */
     private $component;
-    private $publicKey;
-    private $privateKey;
-    private $config;
-    private $encrypt;
+    
+    /**
+     * @var
+     */
     private $response;
+    
+    /**
+     * @var
+     */
+    private $config;
+    
+    /**
+     * @var
+     */
+    private $curl;
+    
+    /**
+     * @var
+     */
     private $signer;
 
     /**
-     * @param string $endpoint
-     * @param string $component
-     * @param string $publicKey
-     * @param string $privateKey
-     * @param array  $config
-     * @param bool   $encrypt
+     * Class construct
+     *
+     * @param  string server  - server enpoint url
+     * @param  array  config  - config array which holds object configuration
+     * @return void
      */
-    public function __construct(
-        $endpoint,
-        $component,
-        $publicKey = '',
-        $privateKey = '',
-        $config = [],
-        $encrypt = true
-    ) {
-        // define vars
-        $this->endpoint = $endpoint;
-        $this->component = $component;
-        $this->publicKey = hash('sha256', gmdate('h').$publicKey);
-        $this->privateKey = hash('sha256', gmdate('h').$privateKey);
-        $this->config = $config;
-        $this->encrypt = $encrypt;
-        $this->response = null;
+    public function __construct($server, array $config = [])
+    {
+        $this->config = array_merge([
+            "server" => $server,
+            "secret" => null
+        ], $config);
 
-        // init signer
-        $this->signer = new Signer($this->publicKey, $this->privateKey, $this->encrypt);
+        // check and set client timeout
+        if (!isset($this->config["timeout"]) || !is_numeric($this->config["timeout"])) {
+            $this->config["timeout"] = 10;
+        }
     }
 
     /**
-     * Helper which changes the server component on the fly without changing
-     * the connection.
+     * Magic getter method, which sets component
      *
-     * @param string $component - component class namespace
-     * @param array  $config    - component array
+     * @param  string method  - component name
+     * @return <Plinker\Client>
      */
-    public function useComponent($component = '', $config = [], $encrypt = true)
+    public function __get($method)
     {
-        $this->component = $component;
-        $this->config = $config;
-        $this->encrypt = $encrypt;
+        $this->component = method;
 
-        return new $this(
-            $this->endpoint,
-            $this->component,
-            $this->publicKey,
-            $this->privateKey,
-            $this->config,
-            $this->encrypt
-        );
+        return $this;
     }
-    
+
     /**
-     * Call endpoint
+     * Magic caller method, which calls component
      *
-     * @codeCoverageIgnore
-     * @access private
-     * @param string $encoded
-     * @param array  $params
-     * @return mixed
+     * @param string action
+     * @param array  params
      */
-    final private function callEndpoint($encoded, $params = [])
+    public function __call($action, array $params)
     {
-        return Requests::post(
-            $this->endpoint,
-            [
-                // send plinker header
-                'plinker' => true,
-                // sign token generated from encoded packet, send as header
-                'token'   => hash_hmac('sha256', $encoded['token'], $this->privateKey),
-            ],
-            $encoded,
-            [
-                'timeout' => (!empty($this->config['timeout']) ? (int) $this->config['timeout'] : 60),
-            ]
-        );
-    }
-    
-    /**
-     * Decode response
-     *
-     * @codeCoverageIgnore
-     * @param string $encoded
-     * @param array  $params
-     * @return mixed
-     */
-    final private function decodeResponse($response)
-    {
-        // check response is a serialized string
-        if (@unserialize($response->body) === false) {
-            if (empty($response->body)) {
-                $message = $response->raw;
-            } else {
-                $message = $response->body;
-            }
-
-            throw new \Exception('Could not unserialize response: '.$message);
-        }
-
-        // initial unserialize response body
-        $response->body = unserialize($response->body);
-
-        // decode response
-        return $this->signer->decode(
-            $response->body
-        );
-    }
-    
-    /**
-     * Validate response
-     *
-     * @codeCoverageIgnore
-     * @param array  $response
-     * @return array
-     */
-    final private function validateResponse($response)
-    {
-        // verify response packet timing validity
-        $response['packet_time'] = microtime(true) - $this->response->body['time'];
-        if ($response['packet_time'] >= 1) {
-            throw new \Exception('Response timing packet check failed');
-        }
-
-        // verify data timing validity
-        $response['data_time'] = (microtime(true) - $response['time']);
-        if ($response['data_time'] >= 1) {
-            throw new \Exception('Response timing data check failed');
-        }
-
-        // decode response data
-        if (is_string($response['response'])) {
-            // empty data response
-            if (empty($response['response'])) {
-                return $response;
-            }
-            // response should be a serialized string
-            if (@unserialize($response['response']) === false) {
-                throw new \Exception('Could not unserialize response: '.$response['response']);
-            }
-            $response['response'] = unserialize($response['response']);
-        }
-
-        // check for errors
-        if (is_array($response['response']) && !empty($response['response']['error'])) {
-            throw new \Exception(ucfirst($response['response']['error']));
+        if (!is_scalar(action)) {
+            throw new \Exception("Method name has no scalar value");
         }
         
-        return $return;
-    }
-
-    /**
-     * Magic caller.
-     *
-     * @codeCoverageIgnore
-     * @param string $action
-     * @param array  $params
-     * @return mixed
-     */
-    public function __call($action, $params)
-    {
-        if (!is_scalar($action)) {
-            throw new \InvalidArgumentException('Method name has no scalar value');
+        if (!is_array(params)) {
+            throw new \Exception("Params must be given as array");
+        }
+        
+        // load curl
+        if (!$this->curl) {
+            $this->curl = new Curl($this->config);
+        }
+        
+        // load signer
+        if (!$this->signer) {
+            $this->signer = new Signer($this->config);
         }
 
-        if (!is_array($params)) {
-            throw new \InvalidArgumentException('Arguments must be given as array');
-        }
-
-        // change arguments array into numeric indexed
+        // change params array into numeric
         $params = array_values($params);
 
         // unset local private key
-        unset($this->config['plinker']['private_key']);
+        //unset(this->config["plinker"]["private_key"]);
 
-        // encode payload
-        $encoded = $this->signer->encode([
-            'time'      => microtime(true),
-            'self'      => $this->endpoint,
-            'component' => $this->component,
-            'config'    => $this->config,
-            'action'    => $action,
-            'params'    => $params,
+        $payload = $this->signer->encode([
+            "component" => $this->component,
+            "config" => $this->config,
+            "action" => $action,
+            "params" => $params
         ]);
 
-        // call endpoint
-        $this->response = $this->callEndpoint($encoded, $params);
-
-        // decode response
-        $response = $this->decodeResponse($this->response);
-        
-        // validate response
-        $response = $this->validateResponse($response);
+        $this->response = $this->curl->post($this->config["server"], $payload, [
+            "PLINKER: ".$payload["token"]
+        ]);
 
         // unserialize data
-        return $response['response'];
+        return unserialize($this->response);
     }
 }
