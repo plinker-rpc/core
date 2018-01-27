@@ -12,3 +12,4 @@ $client = new \Plinker\Client(
 print_r($client);
 
 //echo '<pre>'.print_r($client->testclass->foobar(), true).'</pre>';
+
