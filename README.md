@@ -9,6 +9,8 @@
 [![Packagist Downloads](https://img.shields.io/packagist/dt/plinker/core.svg?style=flat-square)](https://packagist.org/packages/plinker/core)
 
 
+**Version 3 - Does not work with version 2 components, they will be converted shortly.**
+
 Plinker PHP RPC client/server makes it really easy to link and execute PHP component classes on remote systems, while maintaining the feel of a local method call.
 
 Required base component which contains the client and server. (Its all you need if you just want the client).
