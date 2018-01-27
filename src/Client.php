@@ -124,7 +124,7 @@ class Client
         return $this->signer->decode(
             $response->body
         );
-    } 
+    }
     
     /**
      * Validate response
