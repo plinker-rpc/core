@@ -38,7 +38,7 @@ final class Test
     }
 
     /**
-     * 
+     *
      */
     public function this()
     {
