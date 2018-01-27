@@ -73,18 +73,14 @@ class Client
     /**
      * Call endpoint
      *
-<<<<<<< HEAD
      * @codeCoverageIgnore
      * @access private
-=======
->>>>>>> 5651f8bc3ac592bb1593dc7ac4d4a5a1862e3b23
      * @param string $encoded
      * @param array  $params
      * @return mixed
      */
     final private function callEndpoint($encoded, $params = [])
     {
-<<<<<<< HEAD
         return Requests::post(
             $this->endpoint,
             [
@@ -98,57 +94,12 @@ class Client
                 'timeout' => (!empty($this->config['timeout']) ? (int) $this->config['timeout'] : 60),
             ]
         );
-=======
-        // testing
-        if (getenv('APP_ENV') === 'testing') {
-            // good
-            $response = new \stdClass();
-            $response->body = serialize($this->signer->encode([
-                'response' => $params,
-            ]));
-            
-            // fail
-            if (getenv('TEST_CONDITION') === 'http_empty_response') {
-                $response->raw = 'Testing fail';
-                $response->body = null;
-            }
-            
-            // fail
-            if (getenv('TEST_CONDITION') === 'http_invalid_response') {
-                $response->raw = 'Testing fail';
-                $response->body = 'Invalid text response';
-            }
-        }
-        // normal request, store in response
-        else {
-            // @codeCoverageIgnoreStart
-            $response = Requests::post(
-                $this->endpoint,
-                [
-                    // send plinker header
-                    'plinker' => true,
-                    // sign token generated from encoded packet, send as header
-                    'token'   => hash_hmac('sha256', $encoded['token'], $this->privateKey),
-                ],
-                $encoded,
-                [
-                    'timeout' => (!empty($this->config['timeout']) ? (int) $this->config['timeout'] : 60),
-                ]
-            );
-            // @codeCoverageIgnoreEnd
-        }
-        
-        return $response;
->>>>>>> 5651f8bc3ac592bb1593dc7ac4d4a5a1862e3b23
     }
     
     /**
      * Decode response
      *
-<<<<<<< HEAD
      * @codeCoverageIgnore
-=======
->>>>>>> 5651f8bc3ac592bb1593dc7ac4d4a5a1862e3b23
      * @param string $encoded
      * @param array  $params
      * @return mixed
@@ -202,26 +153,9 @@ class Client
             if (empty($response['response'])) {
                 return $response;
             }
-<<<<<<< HEAD
             // response should be a serialized string
             if (@unserialize($response['response']) === false) {
                 throw new \Exception('Could not unserialize response: '.$response['response']);
-=======
-            
-            // fail
-            if (getenv('TEST_CONDITION') === 'data_empty_response') {
-                $return['response'] = '';
-            }
-            
-            // fail
-            if (getenv('TEST_CONDITION') === 'data_invalid_response') {
-                $return['response'] = 'Response not serialized';
-            }
-            
-            // fail
-            if (getenv('TEST_CONDITION') === 'data_error_response') {
-                $return['response'] = serialize(['error' => 'Error from component']);
->>>>>>> 5651f8bc3ac592bb1593dc7ac4d4a5a1862e3b23
             }
             $response['response'] = unserialize($response['response']);
         }
