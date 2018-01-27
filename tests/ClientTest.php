@@ -213,7 +213,7 @@ class ClientTest extends TestCase
         $response->body = serialize(\PHPUnit\Framework\Assert::readAttribute($this->plinker, 'signer')->encode([
             'response' => [],
         ]));
-            
+
         // Create a stub for the SomeClass class.
         $stub = $this->getMockBuilder('\Plinker\Core\Client')
                      ->disableOriginalConstructor()
@@ -224,7 +224,7 @@ class ClientTest extends TestCase
         // Configure the stub.
         $stub->method('callEndpoint')
              ->willReturn($response);
-             
+
         print_r($stub->callEndpoint('encoded', []));
 
         // Calling $stub->doSomething() will now return
@@ -259,7 +259,7 @@ class ClientTest extends TestCase
             $this->assertInstanceOf('Exception', $e);
             $this->assertEquals('Could not unserialize response: Invalid text response', $e->getMessage());
         }
-        
+
         // set test fail condition - http_slow_packet_response
         putenv('TEST_CONDITION=http_slow_packet_response');
 
@@ -279,23 +279,23 @@ class ClientTest extends TestCase
     public function testDataError()
     {
         $this->expected_params = ['a', 'b', 'c'];
-        
+
         // set test fail condition - http_slow_data_response
         putenv('TEST_CONDITION=http_slow_data_response');
-        
+
         try {
             $_failed = $this->plinker->componentMethod(...$this->expected_params);
         } catch (\Exception $e) {
             $this->assertInstanceOf('Exception', $e);
             $this->assertEquals('Response timing data check failed', $e->getMessage());
         }
-        
+
         // set test fail condition - data_empty_response
         putenv('TEST_CONDITION=data_empty_response');
 
         $_failed = $this->plinker->componentMethod(...$this->expected_params);
         $this->assertEquals('', $_failed);
-        
+
         // set test fail condition - data_empty_response
         putenv('TEST_CONDITION=data_invalid_response');
 
@@ -315,7 +315,7 @@ class ClientTest extends TestCase
     public function testResponseError()
     {
         $this->expected_params = ['a', 'b', 'c'];
-        
+
         // set test fail condition - data_error_response
         putenv('TEST_CONDITION=data_error_response');
 
