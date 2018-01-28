@@ -86,6 +86,7 @@ final class Client
      *
      * @param string $action
      * @param array  $params
+     * @return array
      */
     public function __call($action, $params)
     {

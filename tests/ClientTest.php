@@ -15,11 +15,6 @@ class ClientTest extends TestCase
      * @var class config
      */
     private $plinker_config;
-    
-    /**
-     * @var test params
-     */
-    private $expected_params = ['a', 'b', 'c'];
 
     /**
      * Test that true does in fact equal true.
@@ -32,82 +27,52 @@ class ClientTest extends TestCase
     /**
      * setup
      */
-    /*
     public function setUp()
     {
-        // define plinker config
+        //
         $this->plinker_config = [
-            // plinker connection
             'plinker' => [
-                'endpoint' => 'https://127.0.0.1/server.php',
-                'secret'   => 'TestPrivateKey'
-            ],
-            // database connection
-            'database' => [
-                'dsn'      => 'sqlite:./.plinker/database.db',
-                'host'     => '',
-                'name'     => '',
-                'username' => '',
-                'password' => '',
-                'freeze'   => false,
-                'debug'    => false
+                'server' => 'https://127.0.0.1/server.php',
+                'secret' => 'TestPrivateKey'
             ]
         ];
-
-        $this->plinker = new \Plinker\Core\Client(
-            $this->plinker_config['plinker']['endpoint'],
-            [
-                'secret' => 'a secret password'
-            ]
-        );
-
-        // init plinker endpoint client
-        $this->plinker = new \Plinker\Core\Client(
-            // where is the plinker server
-            $this->plinker_config['plinker']['endpoint'],
-
-            // component namespace to interface to
-            'Test\Demo',
-
-            // keys
-            $this->plinker_config['plinker']['public_key'],
-            $this->plinker_config['plinker']['private_key'],
-
-            // construct values which you pass to the component
-            $this->plinker_config
-        );
     }
-    */
     
     /**
-     * // ATSIGNcodeCoverageIgnoreStart
-     * // ATSIGNcodeCoverageIgnoreEnd
+     *
      */
-    /*
     public function testClientConstruct()
     {
-        // check defined
-        $this->assertClassHasAttribute('endpoint', '\Plinker\Core\Client');
+        // check class properties
         $this->assertClassHasAttribute('component', '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('publicKey', '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('privateKey', '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('config', '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('encrypt', '\Plinker\Core\Client');
         $this->assertClassHasAttribute('response', '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('config', '\Plinker\Core\Client');
+        $this->assertClassHasAttribute('curl', '\Plinker\Core\Client');
         $this->assertClassHasAttribute('signer', '\Plinker\Core\Client');
+        
+        // init client
+        $this->plinker = new \Plinker\Core\Client(
+            $this->plinker_config['plinker']['server'],
+            [
+                'secret' => $this->plinker_config['plinker']['secret']
+            ]
+        );
 
         // check client instance
         $this->assertInstanceOf('\Plinker\Core\Client', $this->plinker);
+        
+        // check types
+        $this->assertInternalType('array', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'config'));
 
         // check signer class instance
-        $this->assertInstanceOf(
+        /*$this->assertInstanceOf(
             'Plinker\Core\Signer',
             \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'signer')
-        );
+        );*/
 
         // check keys
         // - public
-        $this->assertEquals(
+        /*$this->assertEquals(
             hash('sha256', gmdate('h').$this->plinker_config['plinker']['public_key']),
             \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'publicKey')
         );
@@ -115,18 +80,40 @@ class ClientTest extends TestCase
         $this->assertEquals(
             hash('sha256', gmdate('h').$this->plinker_config['plinker']['private_key']),
             \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'privateKey')
-        );
-
-        // check types
-        $this->assertInternalType('string', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'endpoint'));
-        $this->assertInternalType('string', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'component'));
-        $this->assertInternalType('string', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'publicKey'));
-        $this->assertInternalType('string', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'privateKey'));
-        $this->assertInternalType('array', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'config'));
-        $this->assertInternalType('bool', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'encrypt'));
-        $this->assertInternalType('null', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'response'));
+        );*/
     }
-    */
+    
+    /**
+     * 
+     */
+    public function testMagicGetterReturnsInstanceOfPlinker()
+    {
+        // init client
+        $this->plinker = new \Plinker\Core\Client(
+            $this->plinker_config['plinker']['server'],
+            [
+                'secret' => $this->plinker_config['plinker']['secret']
+            ]
+        );
+        
+        $this->assertInstanceOf('\Plinker\Core\Client', $this->plinker->random);
+    }
+    
+    /**
+     * 
+     */
+    public function testMagicCallerInitialisesCurl()
+    {
+        // init client
+        $this->plinker = new \Plinker\Core\Client(
+            $this->plinker_config['plinker']['server'],
+            [
+                'secret' => $this->plinker_config['plinker']['secret']
+            ]
+        );
+        
+        //$this->plinker->info();
+    }
     
     /**
      *
