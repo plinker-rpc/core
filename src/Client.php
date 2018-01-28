@@ -120,12 +120,13 @@ final class Client
         ]);
 
         // json decode (unpack) response body
-        if (empty($response['body']) || !($response['body'] = json_decode($response['body'], true))) {
+        if (empty($response['body']) || !($body = json_decode($response['body'], true))) {
+            $response['error'] = 'Failed to decode payload, invalid json';
             return $response;
         }
 
         // verify and decode response
-        if (!($response['body'] = $this->signer->decode($response['body']))) {
+        if (!($body = $this->signer->decode($body))) {
             return [
                 'body' => null,
                 "code" => 422,
@@ -134,6 +135,6 @@ final class Client
         }
 
         //
-        return $response['body'];
+        return $body;
     }
 }

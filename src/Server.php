@@ -149,7 +149,18 @@ final class Server
         $response = [
             "class" => []
         ];
+        
         foreach ($this->config["classes"] as $key => $val) {
+            
+            // arguments
+            $response["class"][$key]["arguments"] = !empty($val[1]) ? $val[1] : [];
+            
+            // check class file exists
+            if (!file_exists($val[0])) {
+                $response["class"][$key]["methods"] = [];
+                continue;
+            }
+            
             //
             require($val[0]);
 
