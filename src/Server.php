@@ -256,7 +256,7 @@ final class Server
     }
     
     /**
-     * 
+     *
      */
     private function __destruct()
     {
