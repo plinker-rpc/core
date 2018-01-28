@@ -72,7 +72,7 @@ final class Client
      * Magic getter method, which sets component
      *
      * @param  string $component
-     * @return <Plinker\Core\Client>
+     * @return object
      */
     public function __get($component)
     {
@@ -89,14 +89,6 @@ final class Client
      */
     public function __call($action, $params)
     {
-        if (!is_scalar($action)) {
-            throw new \Exception("Method name has no scalar value");
-        }
-
-        if (!is_array($params)) {
-            throw new \Exception("Params must be given as array");
-        }
-
         // load curl
         if (!$this->curl) {
             $this->curl = new Lib\Curl($this->config);
