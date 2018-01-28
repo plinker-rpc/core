@@ -76,7 +76,7 @@ final class Server
     
     /**
      * Sets inbound input value into scope
-     * 
+     *
      * @return void
      */
     private function setInput()
@@ -88,7 +88,7 @@ final class Server
     
     /**
      * Check allowed IPs
-     * 
+     *
      * @return bool
      */
     private function checkAllowedIp($ip, $allowed_ips = [])
@@ -219,7 +219,7 @@ final class Server
         if (array_key_exists($this->input["component"], $this->config["classes"])) {
             //
             $response = $this->executeUserComponent($this->input["component"], $this->input["action"]);
-        } 
+        }
         // core component
         else {
             $response = $this->executeCoreComponent($this->input["component"], $this->input["action"]);
