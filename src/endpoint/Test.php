@@ -41,5 +41,4 @@ final class Test
     {
         return $this;
     }
-
 }
