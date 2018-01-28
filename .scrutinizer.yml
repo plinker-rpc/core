@@ -106,14 +106,9 @@ build:
         # Runs before inferred commands
         before:
             - 'composer install'
-    project_setup:
-        before: [
             - cp tests/Server.php server.php 
-        ]
-        override: []
-        after: [
+        after:
             - rm server.php
-        ]
     environment:
         timezone: UTC
         php: '7.0.20'
