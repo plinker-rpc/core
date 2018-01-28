@@ -5,7 +5,7 @@ ini_set('display_errors', '1');
 require '../../vendor/autoload.php';
 
 /**
- * 
+ *
  */
 $client = new \Plinker\Core\Client(
     'http://plinker.free.lxd.systems/vendor/plinker/core/server.php',
