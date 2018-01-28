@@ -84,7 +84,7 @@ final class Signer
 
     /**
      * Sign and encrypt into payload array.
-     * 
+     *
      * @codeCoverageIgnore
      *
      * @return array
@@ -105,7 +105,7 @@ final class Signer
 
     /**
      * Decrypt, verify and unserialize payload.
-     * 
+     *
      * @codeCoverageIgnore
      *
      * @return mixed
