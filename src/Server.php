@@ -270,7 +270,7 @@ final class Server
     private function execute($ns, $action)
     {
         // filter out (secret, server, timeout) from construct config
-        $config = array_filter($this->config['config'], function($value) {
+        $config = array_filter($this->config['config'], function ($value) {
             return is_array($value) || array_key_exists($value, ['secret', 'server', 'timeout']);
         });
 
