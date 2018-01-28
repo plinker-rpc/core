@@ -185,19 +185,19 @@ final class Server
 
         // check allowed ips
         if (!$this->checkAllowedIp($_SERVER["REMOTE_ADDR"], $this->config["allowed_ips"])) {
-            $this->response = [
+            return json_encode($this->signer->encode([
                 "error" => sprintf(Server::ERROR_IP, $_SERVER["REMOTE_ADDR"]),
                 "code" => 403
-            ];
+            ]), JSON_PRETTY_PRINT);
             return;
         }
 
         // check header token matches data token
         if (empty($this->input["token"]) || $_SERVER["HTTP_PLINKER"] != $this->input["token"]) {
-            $this->response = [
+            return json_encode($this->signer->encode([
                 "error" => Server::ERROR_TOKEN,
                 "code" => 422
-            ];
+            ]), JSON_PRETTY_PRINT);
             return;
         }
 
@@ -206,11 +206,10 @@ final class Server
 
         // could not decode payload
         if ($this->input === null) {
-            $this->response = [
+            return json_encode($this->signer->encode([
                 "error" => Server::ERROR_DECODE,
                 "code" => 422
-            ];
-            return;
+            ]), JSON_PRETTY_PRINT);
         }
 
         // import user config
@@ -229,7 +228,8 @@ final class Server
             $response = $this->executeCoreComponent($this->input["component"], $this->input["action"]);
         }
 
-        $this->response = $response;
+        // sign response and return
+        return json_encode($this->signer->encode($response), JSON_PRETTY_PRINT);
     }
 
     /**
@@ -292,17 +292,4 @@ final class Server
         return $response;
     }
     
-    /**
-     *
-     */
-    public function __destruct()
-    {
-        if (!headers_sent()) {
-            header("Content-Type: text/plain; charset=utf-8");
-        }
-        
-        if (!is_null($this->signer)) {
-            echo json_encode($this->signer->encode($this->response), JSON_PRETTY_PRINT);
-        }
-    }
 }

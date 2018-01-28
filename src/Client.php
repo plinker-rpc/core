@@ -113,8 +113,6 @@ final class Client
         $response = $this->curl->post($this->config["server"], $payload, [
             "PLINKER: ".$payload["token"]
         ]);
-        
-        print_r($response);
 
         // json decode (unpack) response body
         if (empty($response['body']) || !($response['body'] = json_decode($response['body'], true))) {

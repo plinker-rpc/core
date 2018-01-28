@@ -26,7 +26,7 @@
     </filter>
     <php>
         <env name="APP_ENV" value="testing"/>
-
+        <server name="REMOTE_ADDR" value="100.100.100.100"/>
     </php>
     <logging>
         <log type="tap" target="build/report.tap"/>

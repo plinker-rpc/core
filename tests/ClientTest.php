@@ -17,14 +17,6 @@ class ClientTest extends TestCase
     private $plinker_config;
 
     /**
-     * Test that true does in fact equal true.
-     */
-    public function testTrueIsTrue()
-    {
-        $this->assertTrue(true);
-    }
-
-    /**
      * setup
      */
     public function setUp()
@@ -67,7 +59,7 @@ class ClientTest extends TestCase
     /**
      *
      */
-    public function test__GetReturnsInstanceOfPlinker()
+    public function testGetPropertyReturnsInstanceOfPlinker()
     {
         // init client
         $this->plinker = new \Plinker\Core\Client(
@@ -78,6 +70,22 @@ class ClientTest extends TestCase
         );
         
         $this->assertInstanceOf('\Plinker\Core\Client', $this->plinker->random);
+    }
+    
+    /**
+     *
+     */
+    public function testGetMethodReturnsArray()
+    {
+        // init client
+        $this->plinker = new \Plinker\Core\Client(
+            $this->plinker_config['plinker']['server'],
+            [
+                'secret' => $this->plinker_config['plinker']['secret']
+            ]
+        );
+        
+        $this->assertTrue(is_array($this->plinker->random()));
     }
 
     /**
