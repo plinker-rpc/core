@@ -37,16 +37,22 @@ final class Server
      * @var
      */
     protected $signer;
+    
+    /**
+     * @var
+     */
+    protected $response;
+    
 
     /**
      * @const - error strings
      */
-    const ERROR_IP    = "IP not in allowed list (%s)";
-    const ERROR_TOKEN = "Plinker token mismatch";
-    const ERROR_DECODE = "Failed to decode payload, check secret";
+    const ERROR_IP            = "IP not in allowed list (%s)";
+    const ERROR_TOKEN         = "Plinker token mismatch";
+    const ERROR_DECODE        = "Failed to decode payload, check secret";
     const ERROR_USR_COMPONENT = "User component class (%s) not found";
     const ERROR_EXT_COMPONENT = "Component (%s) not implemented";
-    const ERROR_ACTION = "Component action (%s) not implemented in: %s";
+    const ERROR_ACTION        = "Component action (%s) not implemented in: %s";
 
     /**
      * Class construct
@@ -83,23 +89,23 @@ final class Server
         $this->post = gzinflate($this->post);
         $this->post = json_decode($this->post, true);
 
-        header("Content-Type: text/plain; charset=utf-8");
-
         // check allowed ips
         if (!empty($this->config["allowed_ips"]) &&
            !in_array($_SERVER["REMOTE_ADDR"], $this->config["allowed_ips"])) {
-            exit(serialize([
+            $this->response = serialize([
                 "error" => sprintf(Server::ERROR_IP, $_SERVER["REMOTE_ADDR"]),
                 "code" => 403
-            ]));
+            ]);
+            return;
         }
 
         // check header token matches data token
         if ($_SERVER["HTTP_PLINKER"] != $this->post["token"]) {
-            exit(serialize([
+            $this->response = serialize([
                 "error" => Server::ERROR_TOKEN,
                 "code" => 422
-            ]));
+            ]);
+            return;
         }
 
         // load signer
@@ -112,10 +118,11 @@ final class Server
 
         // could not decode payload
         if ($this->post === null) {
-            exit(serialize([
+            $this->response = serialize([
                 "error" => Server::ERROR_DECODE,
                 "code" => 422
-            ]));
+            ]);
+            return;
         }
 
         //
@@ -144,10 +151,11 @@ final class Server
 
             //
             if (!empty($ns) && !file_exists($ns)) {
-                exit(serialize([
+                $this->response = serialize([
                     "error" => sprintf(Server::ERROR_USR_COMPONENT, $this->post["component"]),
                     "code"  => 422
-                ]));
+                ]);
+                return;
             }
 
             //
@@ -155,16 +163,18 @@ final class Server
 
             //
             if (!class_exists($this->post["component"])) {
-                exit(serialize([
+                $this->response = serialize([
                     "error" => sprintf(Server::ERROR_USR_COMPONENT, $this->post["component"]),
                     "code"  => 422
-                ]));
+                ]);
+                return;
             }
 
             //
             $response = $this->execute($this->post["component"], $action);
 
-            exit(serialize($response));
+            $this->response = serialize($response);
+            return;
         }
 
         // component is plinker endpoint
@@ -181,7 +191,7 @@ final class Server
             }
         }
 
-        exit(serialize($response));
+        $this->response = serialize($response);
     }
 
     /**
@@ -221,8 +231,8 @@ final class Server
     /**
      * Execute component
      *
-     * @param  ns      component class namespace
-     * @param  action  component action
+     * @param  $ns      component class namespace
+     * @param  $action  component action
      * @return string
      */
     private function execute($ns, $action)
@@ -243,5 +253,14 @@ final class Server
         }
 
         return $response;
+    }
+    
+    /**
+     * 
+     */
+    private function __destruct()
+    {
+        header("Content-Type: text/plain; charset=utf-8");
+        echo 
     }
 }
