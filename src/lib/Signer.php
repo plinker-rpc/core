@@ -84,7 +84,7 @@ final class Signer
 
     /**
      * Sign and encrypt into payload array.
-     * 
+     *
      * @return array
      */
     public function encode($data)
@@ -103,7 +103,7 @@ final class Signer
 
     /**
      * Decrypt, verify and unserialize payload.
-     * 
+     *
      * @return mixed
      */
     public function decode($data)

@@ -65,7 +65,7 @@ class ClientTest extends TestCase
     }
     
     /**
-     * 
+     *
      */
     public function testMagicGetterReturnsInstanceOfPlinker()
     {
