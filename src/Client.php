@@ -105,6 +105,7 @@ final class Client
         // unset local private key
         unset($this->config["plinker"]["private_key"]);
 
+        // encode payload
         $payload = $this->signer->encode([
             "component" => $this->component,
             "config" => $this->config,
@@ -112,11 +113,10 @@ final class Client
             "params" => $params
         ]);
 
+        // post request to plinker server
         $this->response = $this->curl->post($this->config["server"], $payload, [
             "PLINKER: ".$payload["token"]
         ]);
-        
-        //print_r($this->response);
 
         return unserialize($this->response);
     }
