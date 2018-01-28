@@ -26,7 +26,7 @@ final class Client
     /**
      * @var
      */
-    private $component = [];    
+    private $component = [];
     
     /**
      * @var
