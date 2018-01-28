@@ -24,12 +24,17 @@ namespace Plinker\Core\Endpoint;
 final class Test
 {
     /**
+     * @var
+     */
+    private $config;
+    
+    /**
      * Class construct
      *
      * @param  array $config - Config array which holds object configuration
      * @return void
      */
-    public function __construct($config)
+    public function __construct(array $config = [])
     {
         $this->config = $config;
     }
