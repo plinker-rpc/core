@@ -115,6 +115,8 @@ final class Client
         $this->response = $this->curl->post($this->config["server"], $payload, [
             "PLINKER: ".$payload["token"]
         ]);
+        
+        //print_r($this->response);
 
         return unserialize($this->response);
     }

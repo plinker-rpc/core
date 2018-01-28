@@ -26,7 +26,7 @@ final class Server
     /**
      * @var
      */
-    protected $post;
+    protected $input;
 
     /**
      * @var
@@ -73,6 +73,93 @@ final class Server
             $this->config["timeout"] = 10;
         }
     }
+    
+    /**
+     * Sets inbound input value into scope
+     * 
+     * @return void
+     */
+    private function setInput()
+    {
+        $this->input = file_get_contents("php://input");
+        $this->input = gzinflate($this->input);
+        $this->input = json_decode($this->input, true);
+    }
+    
+    /**
+     * Check allowed IPs
+     * 
+     * @return bool
+     */
+    private function checkAllowedIp($ip, $allowed_ips = [])
+    {
+        return !(!empty($allowed_ips) && !in_array($ip, $allowed_ips));
+    }
+    
+    /**
+     * Execute core component
+     */
+    private function executeCoreComponent($component, $action)
+    {
+        // component is plinker endpoint
+        $ns = "\\Plinker\\Core\\Endpoint\\".ucfirst($component);
+
+        if (class_exists($ns)) {
+            //
+            $response = $this->execute($ns, $action);
+        } else {
+            if (empty($component) && $action === "info") {
+                $response = $this->info();
+            } else {
+                $response = sprintf(Server::ERROR_EXT_COMPONENT, $component);
+            }
+        }
+        
+        return $response;
+    }
+
+    /**
+     * Execute user component
+     */
+    private function executeUserComponent($component, $action)
+    {
+        //
+        if (!empty($this->config["classes"][$component][0])) {
+            $ns = $this->config["classes"][$component][0];
+        }
+
+        //
+        if (!empty($this->config["classes"][$component][1])) {
+            $this->config = array_merge(
+                $this->config,
+                $this->config["classes"][$component][1]
+            );
+        }
+
+        //
+        if (!empty($ns) && !file_exists($ns)) {
+            $this->response = serialize([
+                "error" => sprintf(Server::ERROR_USR_COMPONENT, $component),
+                "code"  => 422
+            ]);
+            return;
+        }
+
+        //
+        require($ns);
+
+        //
+        if (!class_exists($component)) {
+            $this->response = serialize([
+                "error" => sprintf(Server::ERROR_USR_COMPONENT, $component),
+                "code"  => 422
+            ]);
+            return;
+        }
+
+        //
+        return $this->execute($component, $action);
+    }
 
     /**
      * Listen method
@@ -85,13 +172,10 @@ final class Server
      */
     public function listen()
     {
-        $this->post = file_get_contents("php://input");
-        $this->post = gzinflate($this->post);
-        $this->post = json_decode($this->post, true);
+        $this->setInput();
 
         // check allowed ips
-        if (!empty($this->config["allowed_ips"]) &&
-           !in_array($_SERVER["REMOTE_ADDR"], $this->config["allowed_ips"])) {
+        if (!$this->checkAllowedIp($_SERVER["REMOTE_ADDR"], $this->config["allowed_ips"])) {
             $this->response = serialize([
                 "error" => sprintf(Server::ERROR_IP, $_SERVER["REMOTE_ADDR"]),
                 "code" => 403
@@ -100,7 +184,7 @@ final class Server
         }
 
         // check header token matches data token
-        if ($_SERVER["HTTP_PLINKER"] != $this->post["token"]) {
+        if ($_SERVER["HTTP_PLINKER"] != $this->input["token"]) {
             $this->response = serialize([
                 "error" => Server::ERROR_TOKEN,
                 "code" => 422
@@ -113,11 +197,11 @@ final class Server
             $this->signer = new Lib\Signer($this->config);
         }
 
-        // decode post payload
-        $this->post = $this->signer->decode($this->post);
+        // decode input payload
+        $this->input = $this->signer->decode($this->input);
 
         // could not decode payload
-        if ($this->post === null) {
+        if ($this->input === null) {
             $this->response = serialize([
                 "error" => Server::ERROR_DECODE,
                 "code" => 422
@@ -125,70 +209,20 @@ final class Server
             return;
         }
 
-        //
-        $response = null;
-        $ns = null;
-        $action = $this->post["action"];
+        // import user config
         $this->config = array_merge(
             $this->config,
-            $this->post
+            $this->input
         );
 
-        // component is in classes config
-        if (array_key_exists($this->post["component"], $this->config["classes"])) {
+        // user component
+        if (array_key_exists($this->input["component"], $this->config["classes"])) {
             //
-            if (!empty($this->config["classes"][$this->post["component"]][0])) {
-                $ns = $this->config["classes"][$this->post["component"]][0];
-            }
-
-            //
-            if (!empty($this->config["classes"][$this->post["component"]][1])) {
-                $this->config = array_merge(
-                    $this->config,
-                    $this->config["classes"][$this->post["component"]][1]
-                );
-            }
-
-            //
-            if (!empty($ns) && !file_exists($ns)) {
-                $this->response = serialize([
-                    "error" => sprintf(Server::ERROR_USR_COMPONENT, $this->post["component"]),
-                    "code"  => 422
-                ]);
-                return;
-            }
-
-            //
-            require($ns);
-
-            //
-            if (!class_exists($this->post["component"])) {
-                $this->response = serialize([
-                    "error" => sprintf(Server::ERROR_USR_COMPONENT, $this->post["component"]),
-                    "code"  => 422
-                ]);
-                return;
-            }
-
-            //
-            $response = $this->execute($this->post["component"], $action);
-
-            $this->response = serialize($response);
-            return;
-        }
-
-        // component is plinker endpoint
-        $ns = "\\Plinker\\Core\\Endpoint\\".ucfirst($this->post["component"]);
-
-        if (class_exists($ns)) {
-            //
-            $response = $this->execute($ns, $action);
-        } else {
-            if (empty($this->post["component"]) && $action === "info") {
-                $response = $this->info();
-            } else {
-                $response = sprintf(Server::ERROR_EXT_COMPONENT, $this->post["component"]);
-            }
+            $response = $this->executeUserComponent($this->input["component"], $this->input["action"]);
+        } 
+        // core component
+        else {
+            $response = $this->executeCoreComponent($this->input["component"], $this->input["action"]);
         }
 
         $this->response = serialize($response);
@@ -246,7 +280,7 @@ final class Server
                     $component,
                     $action
                 ],
-                $this->post["params"]
+                $this->input["params"]
             );
         } else {
             $response = sprintf(Server::ERROR_ACTION, $action, $ns);
