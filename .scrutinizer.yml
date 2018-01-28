@@ -106,6 +106,14 @@ build:
         # Runs before inferred commands
         before:
             - 'composer install'
+    project_setup:
+        before: [
+            - cp tests/Server.php server.php 
+        ]
+        override: []
+        after: [
+            - rm server.php
+        ]
     environment:
         timezone: UTC
         php: '7.0.20'
@@ -121,14 +129,6 @@ build:
                     rules:
                         - RewriteRule # ...
                         - AnotherEntry # will be added to the <VirtualHost> entry of this site
-    project_setup:
-        before: [
-            - cp tests/Server.php server.php 
-        ]
-        override: []
-        after: [
-            - rm server.php
-        ]
     nodes:
         analysis:
             project_setup:
