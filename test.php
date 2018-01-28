@@ -1,11 +1,12 @@
 <?php
 error_reporting(E_ALL);
-ini_set('diaply_errors', '1');
+ini_set('display_errors', '1');
 
-require 'src/lib/Signer.php';
-require 'src/lib/Curl.php';
-require 'src/Client.php';
+require '../../vendor/autoload.php';
 
+/**
+ * 
+ */
 $client = new \Plinker\Core\Client(
     'http://plinker.free.lxd.systems/vendor/plinker/core/server.php',
     [

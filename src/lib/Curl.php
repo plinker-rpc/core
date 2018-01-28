@@ -1,14 +1,43 @@
 <?php
+/*
+ +------------------------------------------------------------------------+
+ | Plinker-RPC PHP                                                        |
+ +------------------------------------------------------------------------+
+ | Copyright (c)2017-2018 (https://github.com/plinker-rpc/core)           |
+ +------------------------------------------------------------------------+
+ | This source file is subject to MIT License                             |
+ | that is bundled with this package in the file LICENSE.                 |
+ |                                                                        |
+ | If you did not receive a copy of the license and are unable to         |
+ | obtain it through the world-wide-web, please send an email             |
+ | to license@cherone.co.uk so we can send you a copy immediately.        |
+ +------------------------------------------------------------------------+
+ | Authors: Lawrence Cherone <lawrence@cherone.co.uk>                     |
+ +------------------------------------------------------------------------+
+ */
 
 namespace Plinker\Core\Lib;
 
+/**
+ * Plinker\Core\Lib\Curl
+ */
 final class Curl
 {
+    /**
+     * @var
+     */
     private $config;
+
+    /**
+     * @var
+     */
     private $options;
 
     /**
+     * Class construct
      *
+     * @param  array  $config  - config array which holds object configuration
+     * @return void
      */
     public function __construct(array $config = [])
     {
@@ -16,6 +45,9 @@ final class Curl
         $this->config = $config;
     }
 
+    /**
+     *
+     */
     final private function setOptions()
     {
         //
@@ -34,8 +66,11 @@ final class Curl
 
     /**
      *  POST
+     *
+     * @param string $url        - url of the plinker server
+     * @param array  $parameters - post parameters
      */
-    public function post($url, $parameters = null, $headers = [])
+    public function post($url, $parameters = [], $headers = [])
     {
         //
         $this->setOptions();
@@ -65,7 +100,7 @@ final class Curl
 
         //
         $body = curl_exec($curl);
-        
+
         if (curl_error($curl)) {
             return serialize([
                 "url"   => $url,

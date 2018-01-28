@@ -1,26 +1,43 @@
 <?php
+/*
+ +------------------------------------------------------------------------+
+ | Plinker-RPC PHP                                                        |
+ +------------------------------------------------------------------------+
+ | Copyright (c)2017-2018 (https://github.com/plinker-rpc/core)           |
+ +------------------------------------------------------------------------+
+ | This source file is subject to MIT License                             |
+ | that is bundled with this package in the file LICENSE.                 |
+ |                                                                        |
+ | If you did not receive a copy of the license and are unable to         |
+ | obtain it through the world-wide-web, please send an email             |
+ | to license@cherone.co.uk so we can send you a copy immediately.        |
+ +------------------------------------------------------------------------+
+ | Authors: Lawrence Cherone <lawrence@cherone.co.uk>                     |
+ +------------------------------------------------------------------------+
+ */
 
 namespace Plinker\Core;
 
-use Plinker\Core\Lib\Signer;
-
+/**
+ * Plinker\Core\Server
+ */
 final class Server
 {
     /**
      * @var
      */
     protected $post;
-    
+
     /**
      * @var
      */
     protected $config;
-    
+
     /**
      * @var
      */
     protected $signer;
-    
+
     /**
      * @const - error strings
      */
@@ -34,7 +51,7 @@ final class Server
     /**
      * Class construct
      *
-     * @param  array          config config array which holds object configuration
+     * @param  array $config - config array which holds object configuration
      * @return void
      */
     public function __construct($config = [])
@@ -76,7 +93,7 @@ final class Server
                 "code" => 403
             ]));
         }
-        
+
         // check header token matches data token
         if ($_SERVER["HTTP_PLINKER"] != $this->post["token"]) {
             exit(serialize([
@@ -87,7 +104,7 @@ final class Server
 
         // load signer
         if (!$this->signer) {
-            $this->signer = new Signer($this->config);
+            $this->signer = new Lib\Signer($this->config);
         }
 
         // decode post payload
@@ -100,7 +117,7 @@ final class Server
                 "code" => 422
             ]));
         }
-        
+
         //
         $response = null;
         $ns = null;
@@ -109,14 +126,14 @@ final class Server
             $this->config,
             $this->post
         );
-        
+
         // component is in classes config
         if (array_key_exists($this->post["component"], $this->config["classes"])) {
             //
             if (!empty($this->config["classes"][$this->post["component"]][0])) {
                 $ns = $this->config["classes"][$this->post["component"]][0];
             }
-            
+
             //
             if (!empty($this->config["classes"][$this->post["component"]][1])) {
                 $this->config = array_merge(
@@ -124,7 +141,7 @@ final class Server
                     $this->config["classes"][$this->post["component"]][1]
                 );
             }
-            
+
             //
             if (!empty($ns) && !file_exists($ns)) {
                 exit(serialize([
@@ -132,7 +149,7 @@ final class Server
                     "code"  => 422
                 ]));
             }
-            
+
             //
             require($ns);
 
@@ -143,7 +160,7 @@ final class Server
                     "code"  => 422
                 ]));
             }
-            
+
             //
             $response = $this->execute($this->post["component"], $action);
 
@@ -166,7 +183,7 @@ final class Server
 
         exit(serialize($response));
     }
-    
+
     /**
      * Return info about available classes
      *
@@ -184,7 +201,7 @@ final class Server
         foreach ($this->config["classes"] as $key => $val) {
             //
             require($val[0]);
-            
+
             $reflection = new \ReflectionClass($key);
 
             foreach ($reflection->getMethods() as $method) {
@@ -197,10 +214,10 @@ final class Server
                 }
             }
         }
-        
+
         return $response;
     }
-    
+
     /**
      * Execute component
      *
@@ -224,7 +241,7 @@ final class Server
         } else {
             $response = sprintf(Server::ERROR_ACTION, $action, $ns);
         }
-        
+
         return $response;
     }
 }

@@ -1,32 +1,48 @@
 <?php
+/*
+ +------------------------------------------------------------------------+
+ | Plinker-RPC PHP                                                        |
+ +------------------------------------------------------------------------+
+ | Copyright (c)2017-2018 (https://github.com/plinker-rpc/core)           |
+ +------------------------------------------------------------------------+
+ | This source file is subject to MIT License                             |
+ | that is bundled with this package in the file LICENSE.                 |
+ |                                                                        |
+ | If you did not receive a copy of the license and are unable to         |
+ | obtain it through the world-wide-web, please send an email             |
+ | to license@cherone.co.uk so we can send you a copy immediately.        |
+ +------------------------------------------------------------------------+
+ | Authors: Lawrence Cherone <lawrence@cherone.co.uk>                     |
+ +------------------------------------------------------------------------+
+ */
 
 namespace Plinker\Core;
 
-use Plinker\Core\Lib\Curl;
-use Plinker\Core\Lib\Signer;
-
+/**
+ * Plinker\Core\Client
+ */
 final class Client
 {
     /**
      * @var
      */
     private $component;
-    
+
     /**
      * @var
      */
     private $response;
-    
+
     /**
      * @var
      */
     private $config;
-    
+
     /**
      * @var
      */
     private $curl;
-    
+
     /**
      * @var
      */
@@ -35,8 +51,8 @@ final class Client
     /**
      * Class construct
      *
-     * @param  string server  - server enpoint url
-     * @param  array  config  - config array which holds object configuration
+     * @param  string $server  - server enpoint url
+     * @param  array  $config  - config array which holds object configuration
      * @return void
      */
     public function __construct($server, array $config = [])
@@ -76,26 +92,26 @@ final class Client
         if (!is_scalar($action)) {
             throw new \Exception("Method name has no scalar value");
         }
-        
+
         if (!is_array($params)) {
             throw new \Exception("Params must be given as array");
         }
-        
+
         // load curl
         if (!$this->curl) {
-            $this->curl = new Curl($this->config);
+            $this->curl = new Lib\Curl($this->config);
         }
-        
+
         // load signer
         if (!$this->signer) {
-            $this->signer = new Signer($this->config);
+            $this->signer = new Lib\Signer($this->config);
         }
 
         // change params array into numeric
         $params = array_values($params);
 
         // unset local private key
-        //unset(this->config["plinker"]["private_key"]);
+        unset($this->config["plinker"]["private_key"]);
 
         $payload = $this->signer->encode([
             "component" => $this->component,
@@ -107,10 +123,7 @@ final class Client
         $this->response = $this->curl->post($this->config["server"], $payload, [
             "PLINKER: ".$payload["token"]
         ]);
-        
-        print_r($this->response);
-        
-    
+
         // unserialize data
         return unserialize($this->response);
     }

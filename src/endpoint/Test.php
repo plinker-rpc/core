@@ -1,11 +1,11 @@
 <?php
 /*
  +------------------------------------------------------------------------+
- | Plinker PHP Extension                                                  |
+ | Plinker-RPC PHP                                                        |
  +------------------------------------------------------------------------+
- | Copyright (c)2017-2017 (https://github.com/plinker-rpc/php-ext)        |
+ | Copyright (c)2017-2018 (https://github.com/plinker-rpc/core)           |
  +------------------------------------------------------------------------+
- | This source file is subject to GNU General Public License v2.0 License |
+ | This source file is subject to MIT License                             |
  | that is bundled with this package in the file LICENSE.                 |
  |                                                                        |
  | If you did not receive a copy of the license and are unable to         |
@@ -15,22 +15,18 @@
  | Authors: Lawrence Cherone <lawrence@cherone.co.uk>                     |
  +------------------------------------------------------------------------+
  */
- 
+
 namespace Plinker\Core\Endpoint;
 
 /**
  * Plinker\Core\Endpoint\Test
- *
- * Provides image facilities to the API
- * @see https://github.com/lxc-systems/lxd/blob/master/lxd/endpoints/images.zep
  */
 final class Test
 {
     /**
-     * Class construct.
+     * Class construct
      *
-     * @param  array          config Config array which holds object configuration
-     * @param  <Lxd\Lib\Curl> curl
+     * @param  array $config - Config array which holds object configuration
      * @return void
      */
     public function __construct($config)
@@ -38,21 +34,11 @@ final class Test
     }
 
     /**
-     * 
+     *
      */
     public function this()
     {
         return $this;
     }
-    
-    /**
-     * Get total diskspace
-     *
-     * @param  string $path
-     * @return int
-     */
-    public function total_disk_space($path = "/")
-    {
-        return disk_total_space($path);
-    }
+
 }
