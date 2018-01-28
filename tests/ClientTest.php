@@ -53,7 +53,7 @@ class ClientTest extends TestCase
                 'debug'    => false
             ]
         ];
-        
+
         $this->plinker = new \Plinker\Core\Client(
             $this->plinker_config['plinker']['endpoint'],
             [
