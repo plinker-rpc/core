@@ -15,7 +15,7 @@ Plinker PHP RPC client/server makes it really easy to link and execute PHP compo
 
 **New changes in version 3 include:**
 
- - Now compaible with [PHP extension](https://raw.githubusercontent.com/plinker-rpc/php-ext)
+ - Now compaible with [PHP extension](https://github.com/plinker-rpc/php-ext).
  - Built-in core components and info method added so components can be discovered.
  - Only one client instance is now needed, made use of __get() to dynamically set component.
  - User defined components/classes, so you can call your own code.
@@ -59,13 +59,14 @@ Creating a client instance is done as follows:
 
 Creating a server listener is done as follows:
 
-Optional features:
+**Optional features:**
 
  - Set a secret, which all clients will require. 
  - Lock down to specific client IP addresses for addtional security.
  - You can also define your own classes in the `classes` array then access like above `$client->class->method()`.
  - You can define addtional key values for database connections etc, or you could pass the parameters through the client connection.
 
+<!-- after list code block fix -->
 
     <?php
     require 'vendor/autoload.php';
