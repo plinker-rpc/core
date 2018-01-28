@@ -231,8 +231,8 @@ final class Server
     /**
      * Execute component
      *
-     * @param  $ns      component class namespace
-     * @param  $action  component action
+     * @param  string $ns      component class namespace
+     * @param  string $action  component action
      * @return string
      */
     private function execute($ns, $action)
