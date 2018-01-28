@@ -83,7 +83,7 @@ class ClientTest extends TestCase
     /**
      *
      */
-    public function testMagicCallerInitialisesCurl()
+    public function testLiveInfoSuccessShouldBeAnEmptyArray()
     {
         // init client
         $this->plinker = new \Plinker\Core\Client(
@@ -93,13 +93,33 @@ class ClientTest extends TestCase
             ]
         );
         
-        // will return error
+        //
         $result = $this->plinker->info();
+
+        //
+        $this->assertEquals([], $result);
+    }
+    
+    /**
+     *
+     */
+    public function testLiveFailShouldBe()
+    {
+        // init client
+        $this->plinker = new \Plinker\Core\Client(
+            $this->plinker_config['plinker']['server'],
+            [
+                'secret' => $this->plinker_config['plinker']['secret']
+            ]
+        );
+        
+        //
+        $result = $this->plinker->foo();
         
         print_r($result);
 
         //
-        $this->assertEquals(0, $result['code']);
+        //$this->assertEquals([], $result);
     }
     
     /**

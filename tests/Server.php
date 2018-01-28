@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * This file is copied to the webroot on build, so as to live test.
+ */
 require '../vendor/autoload.php';
 
 /**
