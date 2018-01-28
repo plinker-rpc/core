@@ -87,12 +87,17 @@ final class Client
     {
         // load curl
         if (!$this->curl) {
-            $this->curl = new Lib\Curl($this->config);
+            $this->curl = new Lib\Curl([
+                'server' => $this->config['server'],
+                'timeout' => $this->config['timeout']
+            ]);
         }
 
         // load signer
         if (!$this->signer) {
-            $this->signer = new Lib\Signer($this->config);
+            $this->signer = new Lib\Signer([
+                'secret' => $this->config['secret']
+            ]);
         }
 
         // change params array into numeric

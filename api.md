@@ -38,6 +38,7 @@
 | Visibility | Function |
 |:-----------|:---------|
 | public | <strong>__construct(</strong><em>array</em> <strong>$config=array()</strong>)</strong> : <em>void</em><br /><em>Class construct</em> |
+| public | <strong>config()</strong> : <em>void</em> |
 | public | <strong>this()</strong> : <em>void</em> |
 
 <hr />

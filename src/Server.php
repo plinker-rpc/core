@@ -65,15 +65,108 @@ final class Server
     public function __construct($config = [])
     {
         $this->config = array_merge([
-            "debug"       => false,
             "secret"      => null,
             "allowed_ips" => []
         ], $config);
-
-        // check and set client timeout
-        if (!isset($this->config["timeout"]) || !is_numeric($this->config["timeout"])) {
-            $this->config["timeout"] = 10;
+    }
+    
+    /**
+     * Listen method
+     *
+     * <code>
+     *  $server->listen();
+     * </code>
+     *
+     * @return string
+     */
+    public function listen()
+    {
+        $this->setInput();
+        
+        // load signer
+        if (!$this->signer) {
+            $this->signer = new Lib\Signer($this->config);
         }
+
+        // check allowed ips
+        if (!$this->checkAllowedIp($_SERVER["REMOTE_ADDR"], $this->config["allowed_ips"])) {
+            return json_encode($this->signer->encode([
+                "error" => sprintf(Server::ERROR_IP, $_SERVER["REMOTE_ADDR"]),
+                "code" => 403
+            ]), JSON_PRETTY_PRINT);
+        }
+
+        // check header token matches data token
+        if (empty($this->input["token"]) || $_SERVER["HTTP_PLINKER"] != $this->input["token"]) {
+            return json_encode($this->signer->encode([
+                "error" => Server::ERROR_TOKEN,
+                "code" => 422
+            ]), JSON_PRETTY_PRINT);
+        }
+
+        // decode input payload
+        $this->input = $this->signer->decode($this->input);
+
+        // could not decode payload
+        if ($this->input === null) {
+            return json_encode($this->signer->encode([
+                "error" => Server::ERROR_DECODE,
+                "code" => 422
+            ]), JSON_PRETTY_PRINT);
+        }
+
+        // import user config
+        $this->config = array_merge(
+            $this->config,
+            $this->input
+        );
+
+        // user component
+        if (array_key_exists($this->input["component"], $this->config["classes"])) {
+            //
+            $response = $this->executeUserComponent($this->input["component"], $this->input["action"]);
+        }
+        // core component
+        else {
+            $response = $this->executeCoreComponent($this->input["component"], $this->input["action"]);
+        }
+
+        // sign response and return
+        return json_encode($this->signer->encode($response), JSON_PRETTY_PRINT);
+    }
+    
+    /**
+     * Return info about available classes
+     *
+     * <code>
+     *  $client->info();
+     * </code>
+     *
+     * @return array
+     */
+    private function info()
+    {
+        $response = [
+            "class" => []
+        ];
+        foreach ($this->config["classes"] as $key => $val) {
+            //
+            require($val[0]);
+
+            $reflection = new \ReflectionClass($key);
+
+            foreach ($reflection->getMethods() as $method) {
+                if (!in_array($method->getName(), ["__construct"])) {
+                    $param = [];
+                    foreach ($method->getParameters() as $parameter) {
+                        $param[] = $parameter->getName();
+                    }
+                    $response["class"][$key]["methods"][$method->getName()] = $param;
+                }
+            }
+        }
+
+        return $response;
     }
     
     /**
@@ -168,105 +261,6 @@ final class Server
     }
 
     /**
-     * Listen method
-     *
-     * <code>
-     *  $server->listen();
-     * </code>
-     *
-     * @return string
-     */
-    public function listen()
-    {
-        $this->setInput();
-        
-        // load signer
-        if (!$this->signer) {
-            $this->signer = new Lib\Signer($this->config);
-        }
-
-        // check allowed ips
-        if (!$this->checkAllowedIp($_SERVER["REMOTE_ADDR"], $this->config["allowed_ips"])) {
-            return json_encode($this->signer->encode([
-                "error" => sprintf(Server::ERROR_IP, $_SERVER["REMOTE_ADDR"]),
-                "code" => 403
-            ]), JSON_PRETTY_PRINT);
-        }
-
-        // check header token matches data token
-        if (empty($this->input["token"]) || $_SERVER["HTTP_PLINKER"] != $this->input["token"]) {
-            return json_encode($this->signer->encode([
-                "error" => Server::ERROR_TOKEN,
-                "code" => 422
-            ]), JSON_PRETTY_PRINT);
-        }
-
-        // decode input payload
-        $this->input = $this->signer->decode($this->input);
-
-        // could not decode payload
-        if ($this->input === null) {
-            return json_encode($this->signer->encode([
-                "error" => Server::ERROR_DECODE,
-                "code" => 422
-            ]), JSON_PRETTY_PRINT);
-        }
-
-        // import user config
-        $this->config = array_merge(
-            $this->config,
-            $this->input
-        );
-
-        // user component
-        if (array_key_exists($this->input["component"], $this->config["classes"])) {
-            //
-            $response = $this->executeUserComponent($this->input["component"], $this->input["action"]);
-        }
-        // core component
-        else {
-            $response = $this->executeCoreComponent($this->input["component"], $this->input["action"]);
-        }
-
-        // sign response and return
-        return json_encode($this->signer->encode($response), JSON_PRETTY_PRINT);
-    }
-
-    /**
-     * Return info about available classes
-     *
-     * <code>
-     *  $client->info();
-     * </code>
-     *
-     * @return array
-     */
-    private function info()
-    {
-        $response = [
-            "class" => []
-        ];
-        foreach ($this->config["classes"] as $key => $val) {
-            //
-            require($val[0]);
-
-            $reflection = new \ReflectionClass($key);
-
-            foreach ($reflection->getMethods() as $method) {
-                if (!in_array($method->getName(), ["__construct"])) {
-                    $param = [];
-                    foreach ($method->getParameters() as $parameter) {
-                        $param[] = $parameter->getName();
-                    }
-                    $response["class"][$key]["methods"][$method->getName()] = $param;
-                }
-            }
-        }
-
-        return $response;
-    }
-
-    /**
      * Execute component
      *
      * @param  string $ns      component class namespace
@@ -275,8 +269,15 @@ final class Server
      */
     private function execute($ns, $action)
     {
-        $component = new $ns($this->config);
+        // filter out (secret, server, timeout) from construct config
+        $config = array_filter($this->config['config'], function($value) {
+            return is_array($value) || array_key_exists($value, ['secret', 'server', 'timeout']);
+        });
 
+        // init component
+        $component = new $ns($config);
+
+        // call method
         if (method_exists($component, $action)) {
             $response = call_user_func_array(
                 [

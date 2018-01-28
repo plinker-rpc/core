@@ -44,6 +44,14 @@ final class Test
     /**
      *
      */
+    public function config()
+    {
+        return $this->config;
+    }
+
+    /**
+     *
+     */
     public function this()
     {
         return $this;

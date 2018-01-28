@@ -108,6 +108,9 @@ final class Curl
 
         //
         curl_close($curl);
+        
+        //
+        $this->options = [];
 
         //
         return $return;
