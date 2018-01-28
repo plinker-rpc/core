@@ -20,7 +20,7 @@ namespace Plinker\Core;
 
 /**
  * Plinker\Core\Server
- * 
+ *
  * @codeCoverageIgnore
  */
 final class Server

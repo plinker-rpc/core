@@ -20,7 +20,7 @@ namespace Plinker\Core\Endpoint;
 
 /**
  * Plinker\Core\Endpoint\Test
- * 
+ *
  * @codeCoverageIgnore
  */
 final class Test
