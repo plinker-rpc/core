@@ -31,11 +31,6 @@ final class Client
     /**
      * @var
      */
-    private $response;
-
-    /**
-     * @var
-     */
     private $config;
 
     /**
@@ -115,10 +110,25 @@ final class Client
         ]);
 
         // post request to plinker server
-        $this->response = $this->curl->post($this->config["server"], $payload, [
+        $response = $this->curl->post($this->config["server"], $payload, [
             "PLINKER: ".$payload["token"]
         ]);
 
-        return unserialize($this->response);
+        // json decode (unpack) response body
+        if (empty($response['body']) || !($response['body'] = json_decode($response['body'], true))) {
+            return $response;
+        }
+
+        // verify and decode response
+        if (!($response['body'] = $this->signer->decode($response['body']))) {
+            return [
+                'body' => null,
+                "code" => 422,
+                "error" => 'Failed to decode payload, check secret'
+            ];
+        }
+
+        //
+        return $response['body'];
     }
 }

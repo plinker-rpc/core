@@ -46,7 +46,7 @@ final class Curl
     }
 
     /**
-     *
+     * @return void
      */
     private function setOptions()
     {
@@ -86,11 +86,12 @@ final class Curl
         $this->options[CURLOPT_POST] = true;
         $this->options[CURLOPT_POSTFIELDS] = $parameters;
 
-        //
+        // set request headers
         if (!empty($headers)) {
             foreach ($headers as $header) {
                 $this->options[CURLOPT_HTTPHEADER][] = $header;
             }
+            $headers = [];
         }
 
         //
@@ -99,18 +100,17 @@ final class Curl
         //
         $body = curl_exec($curl);
 
-        if (curl_error($curl)) {
-            return serialize([
-                "url"   => $url,
-                "error" => curl_error($curl),
-                "code"  => curl_getinfo($curl, CURLINFO_HTTP_CODE)
-            ]);
-        }
+        //
+        $return = [
+            'body'    => $body,
+            'code'    => curl_getinfo($curl, CURLINFO_HTTP_CODE),
+            'error'   => (curl_error($curl) ? curl_error($curl) : null)
+        ];
 
         //
         curl_close($curl);
 
         //
-        return $body;
+        return $return;
     }
 }

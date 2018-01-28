@@ -33,7 +33,9 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Plinker\\Core\\Test\\": "tests"
+            "Plinker\\Core\\Test\\": "tests",
+            "Plinker\\Core\\Lib\\": "src/lib",
+            "Plinker\\Core\\Endpoint\\": "src/endpoint"
         }
     },
     "scripts": {

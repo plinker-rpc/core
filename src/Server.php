@@ -175,28 +175,28 @@ final class Server
     public function listen()
     {
         $this->setInput();
+        
+        // load signer
+        if (!$this->signer) {
+            $this->signer = new Lib\Signer($this->config);
+        }
 
         // check allowed ips
         if (!$this->checkAllowedIp($_SERVER["REMOTE_ADDR"], $this->config["allowed_ips"])) {
-            $this->response = serialize([
+            $this->response = [
                 "error" => sprintf(Server::ERROR_IP, $_SERVER["REMOTE_ADDR"]),
                 "code" => 403
-            ]);
+            ];
             return;
         }
 
         // check header token matches data token
         if ($_SERVER["HTTP_PLINKER"] != $this->input["token"]) {
-            $this->response = serialize([
+            $this->response = [
                 "error" => Server::ERROR_TOKEN,
                 "code" => 422
-            ]);
+            ];
             return;
-        }
-
-        // load signer
-        if (!$this->signer) {
-            $this->signer = new Lib\Signer($this->config);
         }
 
         // decode input payload
@@ -204,10 +204,10 @@ final class Server
 
         // could not decode payload
         if ($this->input === null) {
-            $this->response = serialize([
+            $this->response = [
                 "error" => Server::ERROR_DECODE,
                 "code" => 422
-            ]);
+            ];
             return;
         }
 
@@ -227,7 +227,7 @@ final class Server
             $response = $this->executeCoreComponent($this->input["component"], $this->input["action"]);
         }
 
-        $this->response = serialize($response);
+        $this->response = $response;
     }
 
     /**
@@ -273,7 +273,6 @@ final class Server
      */
     private function execute($ns, $action)
     {
-        $response  = null;
         $component = new $ns($this->config);
 
         if (method_exists($component, $action)) {
@@ -297,6 +296,6 @@ final class Server
     private function __destruct()
     {
         header("Content-Type: text/plain; charset=utf-8");
-        echo $this->response;
+        echo json_encode($this->signer->encode($this->response), JSON_PRETTY_PRINT);
     }
 }

@@ -33,7 +33,7 @@ class ClientTest extends TestCase
         $this->plinker_config = [
             'plinker' => [
                 'server' => 'https://127.0.0.1/server.php',
-                'secret' => 'TestPrivateKey'
+                'secret' => 'a secret password'
             ]
         ];
     }
@@ -45,7 +45,6 @@ class ClientTest extends TestCase
     {
         // check class properties
         $this->assertClassHasAttribute('component', '\Plinker\Core\Client');
-        $this->assertClassHasAttribute('response', '\Plinker\Core\Client');
         $this->assertClassHasAttribute('config', '\Plinker\Core\Client');
         $this->assertClassHasAttribute('curl', '\Plinker\Core\Client');
         $this->assertClassHasAttribute('signer', '\Plinker\Core\Client');
@@ -63,28 +62,10 @@ class ClientTest extends TestCase
         
         // check types
         $this->assertInternalType('array', \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'config'));
-
-        // check signer class instance
-        /*$this->assertInstanceOf(
-            'Plinker\Core\Signer',
-            \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'signer')
-        );*/
-
-        // check keys
-        // - public
-        /*$this->assertEquals(
-            hash('sha256', gmdate('h').$this->plinker_config['plinker']['public_key']),
-            \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'publicKey')
-        );
-        // - private
-        $this->assertEquals(
-            hash('sha256', gmdate('h').$this->plinker_config['plinker']['private_key']),
-            \PHPUnit\Framework\Assert::readAttribute($this->plinker, 'privateKey')
-        );*/
     }
     
     /**
-     *
+     * 
      */
     public function testMagicGetterReturnsInstanceOfPlinker()
     {
@@ -112,7 +93,11 @@ class ClientTest extends TestCase
             ]
         );
         
-        //$this->plinker->info();
+        // will return error
+        $result = $this->plinker->info();
+
+        //
+        $this->assertEquals(0, $result['code']);
     }
     
     /**
