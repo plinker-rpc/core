@@ -91,7 +91,6 @@ final class Curl
             foreach ($headers as $header) {
                 $this->options[CURLOPT_HTTPHEADER][] = $header;
             }
-            $headers = [];
         }
 
         //
