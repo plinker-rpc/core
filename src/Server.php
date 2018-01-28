@@ -76,7 +76,7 @@ final class Server
     
     /**
      * Sets inbound input value into scope
-     *
+     * 
      * @return void
      */
     private function setInput()
@@ -88,7 +88,7 @@ final class Server
     
     /**
      * Check allowed IPs
-     *
+     * 
      * @return bool
      */
     private function checkAllowedIp($ip, $allowed_ips = [])
@@ -123,6 +123,8 @@ final class Server
      */
     private function executeUserComponent($component, $action)
     {
+        $ns = null;
+        
         //
         if (!empty($this->config["classes"][$component][0])) {
             $ns = $this->config["classes"][$component][0];
