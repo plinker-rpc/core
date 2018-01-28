@@ -107,8 +107,6 @@ build:
         before:
             - 'composer install'
             - cp tests/Server.php server.php 
-        after:
-            - rm server.php
     environment:
         timezone: UTC
         php: '7.0.20'
@@ -136,3 +134,5 @@ build:
                         coverage:
                             file: 'build/logs/clover.xml'
                             format: 'clover'
+                after:
+                    - rm server.php
