@@ -93,7 +93,5 @@ class ServerTest extends TestCase
         
         //
         $this->assertEquals(true, method_exists($this->server, 'listen'));
-
     }
-
 }
