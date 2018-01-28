@@ -67,7 +67,7 @@ class ClientTest extends TestCase
     /**
      *
      */
-    public function testMagicGetterReturnsInstanceOfPlinker()
+    public function test__GetReturnsInstanceOfPlinker()
     {
         // init client
         $this->plinker = new \Plinker\Core\Client(
@@ -79,49 +79,7 @@ class ClientTest extends TestCase
         
         $this->assertInstanceOf('\Plinker\Core\Client', $this->plinker->random);
     }
-    
-    /**
-     *
-     */
-    public function testLiveInfoSuccessShouldBeAnEmptyClassArray()
-    {
-        // init client
-        $this->plinker = new \Plinker\Core\Client(
-            $this->plinker_config['plinker']['server'],
-            [
-                'secret' => $this->plinker_config['plinker']['secret']
-            ]
-        );
-        
-        //
-        $result = $this->plinker->info();
 
-        //
-        $this->assertEquals(['class' => []], $result);
-    }
-    
-    /**
-     *
-     */
-    public function testLiveFailShouldBe()
-    {
-        // init client
-        $this->plinker = new \Plinker\Core\Client(
-            $this->plinker_config['plinker']['server'],
-            [
-                'secret' => $this->plinker_config['plinker']['secret']
-            ]
-        );
-        
-        //
-        $result = $this->plinker->foo();
-        
-        print_r($result);
-
-        //
-        //$this->assertEquals([], $result);
-    }
-    
     /**
      *
      */

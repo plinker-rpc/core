@@ -104,25 +104,25 @@ checks:
 build:
     dependencies:
         # Runs before inferred commands
-        before:
-            - 'composer install'
-            - mkdir web
-            - cp tests/Server.php web/server.php
+        #before:
+        #    - 'composer install'
+        #    - mkdir web
+        #    - cp tests/Server.php web/server.php
     environment:
         timezone: UTC
         php: '7.0.20'
         # Sets up DNS entries for certain hosts
-        hosts:
-            local.dev: 127.0.0.1
-        apache2:
-            modules: []
-            sites:
-                my-site-name:
-                    host:      local.dev # also make sure to add under "hosts" above
-                    web_root:  'web/'
-                    #rules:
-                    #    - RewriteRule # ...
-                    #    - AnotherEntry # will be added to the <VirtualHost> entry of this site
+        #hosts:
+        #    local.dev: 127.0.0.1
+        #apache2:
+        #    modules: []
+        #    sites:
+        #        my-site-name:
+        #            host:      local.dev # also make sure to add under "hosts" above
+        #            web_root:  'web/'
+        #            #rules:
+        #            #    - RewriteRule # ...
+        #            #    - AnotherEntry # will be added to the <VirtualHost> entry of this site
     nodes:
         analysis:
             project_setup:
@@ -135,5 +135,5 @@ build:
                         coverage:
                             file: 'build/logs/clover.xml'
                             format: 'clover'
-                after:
-                    - rm web/server.php
+                #after:
+                #    - rm web/server.php

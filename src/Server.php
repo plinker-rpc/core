@@ -82,8 +82,10 @@ final class Server
     private function setInput()
     {
         $this->input = file_get_contents("php://input");
-        $this->input = gzinflate($this->input);
-        $this->input = json_decode($this->input, true);
+        if (!empty($this->input)) {
+            $this->input = gzinflate($this->input);
+            $this->input = json_decode($this->input, true);
+        }
     }
     
     /**
@@ -191,7 +193,7 @@ final class Server
         }
 
         // check header token matches data token
-        if ($_SERVER["HTTP_PLINKER"] != $this->input["token"]) {
+        if (empty($this->input["token"]) || $_SERVER["HTTP_PLINKER"] != $this->input["token"]) {
             $this->response = [
                 "error" => Server::ERROR_TOKEN,
                 "code" => 422
@@ -293,9 +295,14 @@ final class Server
     /**
      *
      */
-    private function __destruct()
+    public function __destruct()
     {
-        header("Content-Type: text/plain; charset=utf-8");
-        echo json_encode($this->signer->encode($this->response), JSON_PRETTY_PRINT);
+        if (!headers_sent()) {
+            header("Content-Type: text/plain; charset=utf-8");
+        }
+        
+        if (!is_null($this->signer)) {
+            echo json_encode($this->signer->encode($this->response), JSON_PRETTY_PRINT);
+        }
     }
 }

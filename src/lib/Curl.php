@@ -98,7 +98,7 @@ final class Curl
 
         //
         $body = curl_exec($curl);
-
+    
         //
         $return = [
             'body'    => $body,
