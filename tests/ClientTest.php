@@ -84,7 +84,7 @@ class ClientTest extends TestCase
     }
     
     /**
-     * 
+     *
      */
     public function testMagicGetterReturnsInstanceOfPlinker()
     {
@@ -100,7 +100,7 @@ class ClientTest extends TestCase
     }
     
     /**
-     * 
+     *
      */
     public function testMagicCallerInitialisesCurl()
     {
