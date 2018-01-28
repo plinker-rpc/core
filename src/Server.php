@@ -291,5 +291,4 @@ final class Server
 
         return $response;
     }
-    
 }
