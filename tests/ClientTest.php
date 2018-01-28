@@ -32,7 +32,7 @@ class ClientTest extends TestCase
         //
         $this->plinker_config = [
             'plinker' => [
-                'server' => 'http://local.dev/server.php',
+                'server' => 'http://127.0.0.1/server.php',
                 'secret' => 'a secret password'
             ]
         ];
@@ -83,7 +83,7 @@ class ClientTest extends TestCase
     /**
      *
      */
-    public function testLiveInfoSuccessShouldBeAnEmptyArray()
+    public function testLiveInfoSuccessShouldBeAnEmptyClassArray()
     {
         // init client
         $this->plinker = new \Plinker\Core\Client(
@@ -97,7 +97,7 @@ class ClientTest extends TestCase
         $result = $this->plinker->info();
 
         //
-        $this->assertEquals([], $result);
+        $this->assertEquals(['class' => []], $result);
     }
     
     /**
