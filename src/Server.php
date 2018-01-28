@@ -172,7 +172,7 @@ final class Server
      *  $server->listen();
      * </code>
      *
-     * @return void
+     * @return string
      */
     public function listen()
     {
