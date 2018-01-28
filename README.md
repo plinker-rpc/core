@@ -8,7 +8,7 @@
 [![Packagist Version](https://img.shields.io/packagist/v/plinker/core.svg?style=flat-square)](https://github.com/plinker-rpc/core/releases)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/plinker/core.svg?style=flat-square)](https://packagist.org/packages/plinker/core)
 
-Plinker PHP RPC client/server makes it really easy to link and execute PHP components on remote systems, while maintaining the feel of a local method call.
+Plinker PHP RPC client/server makes it really easy to link and execute generic PHP components on remote systems, while maintaining the feel of a local method call.
 
 **New changes in version 3 include:**
 
@@ -16,7 +16,7 @@ Plinker PHP RPC client/server makes it really easy to link and execute PHP compo
  - Built-in core components and info method added so components can be discovered.
  - Only one client instance is now needed, made use of __get() to dynamically set component.
  - User defined components/classes, so you can call your own code.
- - Encryption always.
+ - Both request and response is encrypted and signed.
 
 
 ## Install
@@ -69,8 +69,8 @@ Creating a server listener is done as follows:
 
  - Set a secret, which all clients will require. 
  - Lock down to specific client IP addresses for addtional security.
- - You can also define your own classes in the `classes` array then access like above `$client->class->method()`.
- - You can define addtional key values for database connections etc, or you could pass the parameters through the client connection.
+ - Define your own classes in the `classes` array then access like above `$client->class->method()`, which can interface out of scope components or composer packages.
+ - Define addtional key values for database connections etc, or you could pass the parameters through the client connection.
 
 <!-- after list code block fix -->
 
@@ -112,11 +112,11 @@ Creating a server listener is done as follows:
     
 ### Making calls
 
-Once setup, you simply call the class though its namespace to its method.
+Once setup, you call the class though its namespace to its method.
 
 So for example, using the above defined `Foo\Demo` class above, you would call like:
 
-`$client->foo->demo->some_method()`
+`$client->foo->demo->some_method();`
 
 Simplez..
 
@@ -126,11 +126,11 @@ For example in the version 2 `system` component, you would call the component li
 
 `$client->total_disk_space('/');` after defining the component in the client connection.
 
-In version 3 you can directly call that component like:
+Now in version 3 you can directly call that component like:
 
-`$client->system->system->total_disk_space(['/'])`
+`$client->system->system->total_disk_space(['/']);`
 
-**Note:** We wrap any parameters in an array, as version 2 used `call_user_func` instead of `call_user_func_array`.
+**Note:** We wrap any parameters in an array, as version 2 used `call_user_func()` instead of `call_user_func_array()`.
 
     
 ## Testing
