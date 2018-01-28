@@ -189,7 +189,6 @@ final class Server
                 "error" => sprintf(Server::ERROR_IP, $_SERVER["REMOTE_ADDR"]),
                 "code" => 403
             ]), JSON_PRETTY_PRINT);
-            return;
         }
 
         // check header token matches data token
@@ -198,7 +197,6 @@ final class Server
                 "error" => Server::ERROR_TOKEN,
                 "code" => 422
             ]), JSON_PRETTY_PRINT);
-            return;
         }
 
         // decode input payload
