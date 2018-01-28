@@ -31,6 +31,7 @@ final class Test
      */
     public function __construct($config)
     {
+        $this->config = $config;
     }
 
     /**
@@ -40,4 +41,5 @@ final class Test
     {
         return $this;
     }
+
 }

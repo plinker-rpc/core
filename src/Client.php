@@ -71,12 +71,12 @@ final class Client
     /**
      * Magic getter method, which sets component
      *
-     * @param  string method  - component name
-     * @return <Plinker\Client>
+     * @param  string $component
+     * @return <Plinker\Core\Client>
      */
-    public function __get($method)
+    public function __get($component)
     {
-        $this->component = $method;
+        $this->component = $component;
 
         return $this;
     }
@@ -84,10 +84,10 @@ final class Client
     /**
      * Magic caller method, which calls component
      *
-     * @param string action
-     * @param array  params
+     * @param string $action
+     * @param array  $params
      */
-    public function __call($action, array $params)
+    public function __call($action, $params)
     {
         if (!is_scalar($action)) {
             throw new \Exception("Method name has no scalar value");
@@ -124,7 +124,6 @@ final class Client
             "PLINKER: ".$payload["token"]
         ]);
 
-        // unserialize data
         return unserialize($this->response);
     }
 }

@@ -48,7 +48,7 @@ final class Curl
     /**
      *
      */
-    final private function setOptions()
+    private function setOptions()
     {
         //
         $this->options = [
@@ -76,10 +76,8 @@ final class Curl
         $this->setOptions();
 
         //
-        if (is_array($parameters)) {
-            $parameters = json_encode($parameters);
-            $parameters = gzdeflate($parameters, 9);
-        }
+        $parameters = json_encode($parameters);
+        $parameters = gzdeflate($parameters, 9);
 
         //
         $curl = curl_init($url);
