@@ -121,9 +121,9 @@ build:
                 my-site-name:
                     host:      local.dev # also make sure to add under "hosts" above
                     web_root:  /
-                    rules:
-                        - RewriteRule # ...
-                        - AnotherEntry # will be added to the <VirtualHost> entry of this site
+                    #rules:
+                    #    - RewriteRule # ...
+                    #    - AnotherEntry # will be added to the <VirtualHost> entry of this site
     nodes:
         analysis:
             project_setup:
