@@ -134,7 +134,7 @@ final class Server
         // sign response and return
         return json_encode($this->signer->encode($response), JSON_PRETTY_PRINT);
     }
-    
+
     /**
      * Return info about available classes
      *
@@ -147,13 +147,13 @@ final class Server
     private function info()
     {
         $response = [
-            "class" => []
+            'class' => []
         ];
         
         foreach ($this->config["classes"] as $key => $val) {
             
-            // arguments
-            $response["class"][$key]["arguments"] = !empty($val[1]) ? $val[1] : [];
+            // addtional config
+            $response["class"][$key]["config"] = !empty($val[1]) ? $val[1] : [];
             
             // check class file exists
             if (!file_exists($val[0])) {
@@ -209,8 +209,8 @@ final class Server
      */
     private function executeCoreComponent($component, $action)
     {
-        // component is plinker endpoint
-        $ns = "\\Plinker\\Core\\Endpoint\\".ucfirst($component);
+        // define component namespace
+        $ns = "\\Plinker\\".ucfirst($component);
 
         if (class_exists($ns)) {
             //
@@ -240,8 +240,8 @@ final class Server
 
         //
         if (!empty($this->config["classes"][$component][1])) {
-            $this->config = array_merge(
-                $this->config,
+            $this->config['config'] = array_merge(
+                $this->config['config'],
                 $this->config["classes"][$component][1]
             );
         }
@@ -281,9 +281,9 @@ final class Server
     private function execute($ns, $action)
     {
         // filter out (secret, server, timeout) from construct config
-        $config = array_filter($this->config['config'], function ($value) {
-            return is_array($value) || array_key_exists($value, ['secret', 'server', 'timeout']);
-        });
+        $config = array_filter($this->config['config'], function ($key) {
+            return !in_array($key, ['secret', 'server', 'timeout']);
+        }, ARRAY_FILTER_USE_KEY);
 
         // init component
         $component = new $ns($config);

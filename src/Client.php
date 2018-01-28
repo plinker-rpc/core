@@ -26,7 +26,12 @@ final class Client
     /**
      * @var
      */
-    private $component;
+    private $component = [];    
+    
+    /**
+     * @var
+     */
+    private $chaining = false;
 
     /**
      * @var
@@ -71,8 +76,14 @@ final class Client
      */
     public function __get($component)
     {
-        $this->component = $component;
-
+        // on first call reset component array and enable chaining
+        if (!$this->chaining) {
+            $this->component = [];
+            $this->chaining = true;
+        }
+        
+        $this->component[] = ucfirst($component);
+        
         return $this;
     }
 
@@ -85,6 +96,9 @@ final class Client
      */
     public function __call($action, $params)
     {
+        // set chaining state
+        $this->chaining = false;
+        
         // load curl
         if (!$this->curl) {
             $this->curl = new Lib\Curl([
@@ -108,7 +122,7 @@ final class Client
 
         // encode payload
         $payload = $this->signer->encode([
-            "component" => $this->component,
+            "component" => implode('\\', $this->component),
             "config" => $this->config,
             "action" => $action,
             "params" => $params
