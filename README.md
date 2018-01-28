@@ -11,9 +11,16 @@
 
 **Version 3 - Does not work with version 2 components, they will be converted shortly.**
 
-Plinker PHP RPC client/server makes it really easy to link and execute PHP component classes on remote systems, while maintaining the feel of a local method call.
+Plinker PHP RPC client/server makes it really easy to link and execute PHP components on remote systems, while maintaining the feel of a local method call.
 
-Required base component which contains the client and server. (Its all you need if you just want the client).
+**New changes in version 3 include:**
+
+ - Now compaible with [PHP extension](https://raw.githubusercontent.com/plinker-rpc/php-ext)
+ - Built-in core components and info method added so components can be discovered.
+ - Only one client instance is now needed, made use of __get() to dynamically set component.
+ - User defined components/classes, so you can call your own code.
+ - Encryption always.
+
 
 ## Install
 
@@ -24,7 +31,9 @@ $ composer require plinker/core
 ```
 
 
-### Making a remote call.
+### Initialize Client
+
+Creating a client instance is done as follows:
 
 
     <?php
@@ -33,39 +42,56 @@ $ composer require plinker/core
     /**
      * Initialize plinker client.
      *
-     * @param string $url to host
-     * @param string $component namespace of class to interface to
-     * @param string $public_key to authenticate on host
-     * @param string $private_key to authenticate on host
-     * @param string $config component construct config
+     * @param string $server
+     * @param string $config
      */
-    $plink = new Plinker\Core\Client(
-        'http://example.com',
-        'Test\Demo',
-        'username',
-        'password',
-        array(
-            'time' => time()
-        )
+    $client = new \Plinker\Client(
+        'http://example.com/server.php',
+        [
+            'secret' => 'a secret password'
+        ]
     );
-    echo '<pre>'.print_r($plink->test(), true).'</pre>';
+    
+    echo '<pre>'.print_r($client->test->this(), true).'</pre>';
 
 
-**then the server part...**
+### Initialize Server
+
+Creating a server listener is done as follows:
+
+Optional features:
+
+ - Set a secret, which all clients will require. 
+ - Lock down to specific client IP addresses for addtional security.
+ - You can also define your own classes in the `classes` array then access like above `$client->class->method()`.
+ - You can define addtional key values for database connections etc, or you could pass the parameters through the client connection.
+
 
     <?php
     require 'vendor/autoload.php';
 
     /**
-     * POST Server Part
+     * Initialize plinker server.
      */
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $server = new Plinker\Core\Server(
-            $_POST,
-            'username',
-            'password'
-        );
-        exit($server->execute());
+    if (isset($_SERVER['HTTP_PLINKER'])) {
+        // init plinker server
+        (new \Plinker\Server([
+            'secret' => 'a secret password',
+            'allowed_ips' => [
+                '127.0.0.1'
+            ],
+            'classes' => [
+                'test' => [
+                    // path to file
+                    'classes/test.php',
+                    // addtional key/values
+                    [
+                        'key' => 'value'
+                    ]
+                ],
+                // ...
+            ]
+        ]))->listen();
     }
     
     

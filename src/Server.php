@@ -261,6 +261,6 @@ final class Server
     private function __destruct()
     {
         header("Content-Type: text/plain; charset=utf-8");
-        echo 
+        echo $this->response;
     }
 }
