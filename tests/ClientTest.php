@@ -32,7 +32,7 @@ class ClientTest extends TestCase
         //
         $this->plinker_config = [
             'plinker' => [
-                'server' => 'http://127.0.0.1/server.php',
+                'server' => 'http://local.dev/server.php',
                 'secret' => 'a secret password'
             ]
         ];
