@@ -8,9 +8,6 @@
 [![Packagist Version](https://img.shields.io/packagist/v/plinker/core.svg?style=flat-square)](https://github.com/plinker-rpc/core/releases)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/plinker/core.svg?style=flat-square)](https://packagist.org/packages/plinker/core)
 
-
-**Version 3 - Does not work with version 2 components, they will be converted shortly.**
-
 Plinker PHP RPC client/server makes it really easy to link and execute PHP components on remote systems, while maintaining the feel of a local method call.
 
 **New changes in version 3 include:**
@@ -45,10 +42,19 @@ Creating a client instance is done as follows:
      * @param string $server
      * @param string $config
      */
-    $client = new \Plinker\Client(
+    $client = new \Plinker\Core\Client(
         'http://example.com/server.php',
         [
-            'secret' => 'a secret password'
+            // client/server secret (optional)
+            'secret' => 'a secret password',
+            
+            // addtional parameters to pass to the component class (optional)
+            'my_addtional_params' => ['values, which '],
+            'database' => [
+                'username' => 'perhaps a database array'
+            ],
+            'some_key' => 'some_value'
+            // ...
         ]
     );
     
@@ -90,11 +96,42 @@ Creating a server listener is done as follows:
                         'key' => 'value'
                     ]
                 ],
+                // you can use namespaced classes
+                'Foo\\Demo' => [
+                    // path to file
+                    'some_class/demo.php',
+                    // addtional key/values
+                    [
+                        'key' => 'value'
+                    ]
+                ],
                 // ...
             ]
         ]))->listen();
     }
     
+### Making calls
+
+Once setup, you simply call the class though its namespace to its method.
+
+So for example, using the above defined `Foo\Demo` class above, you would call like:
+
+`$client->foo->demo->some_method()`
+
+Simplez..
+
+In version 3 you can call version 2 components with a small change.
+
+For example in the version 2 `system` component, you would call the component like:
+
+`$client->total_disk_space('/');` after defining the component in the client connection.
+
+In version 3 you can directly call that component like:
+
+`$client->system->system->total_disk_space(['/'])`
+
+**Note:** We wrap any parameters in an array, as version 2 used `call_user_func` instead of `call_user_func_array`.
+
     
 ## Testing
 
