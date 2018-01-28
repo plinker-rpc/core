@@ -68,7 +68,7 @@ class ServerTest extends TestCase
     }
     
     /**
-     * TODO REMOVE __DESTRUCT AND MOVE THAT OUT OF THE SERVER CLASS
+     *
      */
     public function testListen()
     {

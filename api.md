@@ -15,7 +15,7 @@
 | Visibility | Function |
 |:-----------|:---------|
 | public | <strong>__construct(</strong><em>array</em> <strong>$config=array()</strong>)</strong> : <em>void</em><br /><em>Class construct</em> |
-| public | <strong>listen()</strong> : <em>void</em><br /><em>Listen method <code> $server->listen(); </code></em> |
+| public | <strong>listen()</strong> : <em>string</em><br /><em>Listen method <code> $server->listen(); </code></em> |
 
 <hr />
 
