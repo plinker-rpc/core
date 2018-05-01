@@ -93,6 +93,8 @@ class ServerTest extends TestCase
         
         $response = $this->server->listen();
         
+        print_r($response);
+        
         //
         $this->assertTrue(!empty($response));
 
