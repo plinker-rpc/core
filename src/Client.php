@@ -27,7 +27,7 @@ final class Client
      * @var
      */
     private $component = [];
-    
+
     /**
      * @var
      */
@@ -81,9 +81,9 @@ final class Client
             $this->component = [];
             $this->chaining = true;
         }
-        
+
         $this->component[] = ucfirst($component);
-        
+
         return $this;
     }
 
@@ -98,7 +98,7 @@ final class Client
     {
         // set chaining state
         $this->chaining = false;
-        
+
         // load curl
         if (!$this->curl) {
             $this->curl = new Lib\Curl([
@@ -132,7 +132,7 @@ final class Client
         $response = $this->curl->post($this->config["server"], $payload, [
             "PLINKER: ".$payload["token"]
         ]);
-        
+
         // check curl error
         if (!empty($response['error'])) {
             return $response;
@@ -140,7 +140,7 @@ final class Client
 
         // json decode (unpack) response body
         if (empty($response['body']) || !($body = json_decode($response['body'], true))) {
-            $response['error'] = 'Failed to decode payload, invalid json';
+            $response['error'] = 'Failed to decode payload, invalid response';
             return $response;
         }
 
