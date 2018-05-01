@@ -132,6 +132,11 @@ final class Client
         $response = $this->curl->post($this->config["server"], $payload, [
             "PLINKER: ".$payload["token"]
         ]);
+        
+        // check curl error
+        if (!empty($response['error'])) {
+            return $response;
+        }
 
         // json decode (unpack) response body
         if (empty($response['body']) || !($body = json_decode($response['body'], true))) {
@@ -142,9 +147,9 @@ final class Client
         // verify and decode response
         if (!($body = $this->signer->decode($body))) {
             return [
-                'body' => null,
+                'body' => $response['body'],
                 "code" => 422,
-                "error" => 'Failed to decode payload, check secret'
+                "error" => 'Failed to decode payload'
             ];
         }
 
