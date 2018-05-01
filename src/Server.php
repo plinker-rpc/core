@@ -215,6 +215,10 @@ final class Server
         if (class_exists($ns)) {
             //
             $response = $this->execute($ns, $action);
+        } elseif (class_exists($ns."\\".ucfirst($component))) {
+            //
+            $ns = "\\Plinker\\".ucfirst($component)."\\".ucfirst($component);
+            $response = $this->execute($ns, $action);
         } else {
             if (empty($component) && $action === "info") {
                 $response = $this->info();
