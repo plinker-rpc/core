@@ -1,4 +1,4 @@
-**Plinker-RPC - Core**
+**PlinkerRPC - Core**
 =========
 
 [![Build Status](https://travis-ci.org/plinker-rpc/core.svg?branch=master)](https://travis-ci.org/plinker-rpc/core)
@@ -10,6 +10,8 @@
 
 Plinker PHP RPC client/server makes it really easy to link and execute generic PHP components on remote systems, while maintaining the feel of a local method call.
 
+**Docs:** [https://plinker-rpc.github.io/development/core](https://plinker-rpc.github.io/development/core)
+
 **New changes in version 3 include:**
 
  - Now compaible with [PHP extension](https://github.com/plinker-rpc/php-ext).
@@ -17,7 +19,6 @@ Plinker PHP RPC client/server makes it really easy to link and execute generic P
  - Only one client instance is now needed, made use of __get() to dynamically set component.
  - User defined components/classes, so you can call your own code.
  - Both request and response is encrypted and signed.
-
 
 ## Install
 
@@ -27,8 +28,11 @@ Require this package with composer using the following command:
 $ composer require plinker/core
 ```
 
+### Additional Setup
 
-### Initialize Client
+This component does not require any additional setup.
+
+## Client
 
 Creating a client instance is done as follows:
 
@@ -39,29 +43,18 @@ Creating a client instance is done as follows:
     /**
      * Initialize plinker client.
      *
-     * @param string $server
-     * @param string $config
+     * @param string $server - URL to server listener.
+     * @param string $config - server secret, and/or a additional component data
      */
     $client = new \Plinker\Core\Client(
         'http://example.com/server.php',
         [
-            // client/server secret (optional)
             'secret' => 'a secret password',
-            
-            // addtional parameters to pass to the component class (optional)
-            'my_addtional_params' => ['values, which '],
-            'database' => [
-                'username' => 'perhaps a database array'
-            ],
-            'some_key' => 'some_value'
-            // ...
         ]
     );
     
-    echo '<pre>'.print_r($client->test->this(), true).'</pre>';
 
-
-### Initialize Server
+## Server
 
 Creating a server listener is done as follows:
 
@@ -82,7 +75,7 @@ Creating a server listener is done as follows:
      */
     if (isset($_SERVER['HTTP_PLINKER'])) {
         // init plinker server
-        (new \Plinker\Server([
+        echo (new \Plinker\Server([
             'secret' => 'a secret password',
             'allowed_ips' => [
                 '127.0.0.1'
@@ -110,29 +103,61 @@ Creating a server listener is done as follows:
         ]))->listen();
     }
     
-### Making calls
+
+## Methods
 
 Once setup, you call the class though its namespace to its method.
 
-So for example, using the above defined `Foo\Demo` class above, you would call like:
 
-`$client->foo->demo->some_method();`
+### Info
 
-Simplez..
+The info method returns defined endpoint methods and their parameters.
 
-In version 3 you can call version 2 components with a small change.
+**Call**
 
-For example in the version 2 `system` component, you would call the component like:
 
-`$client->total_disk_space('/');` after defining the component in the client connection.
+```
+$result = $client->info();
+```
 
-Now in version 3 you can directly call that component like:
+**Response**
+```
+Array
+(
+    [class] => Array
+        (
+            [Foo\Demo] => Array
+                (
+                    [config] => Array
+                        (
+                            [key] => value
+                        )
 
-`$client->system->system->total_disk_space(['/']);`
+                    [methods] => Array
+                        (
+                            [config] => Array
+                                (
+                                )
 
-**Note:** We wrap any parameters in an array, as version 2 used `call_user_func()` instead of `call_user_func_array()`.
+                            [this] => Array
+                                (
+                                )
 
-    
+                            [test] => Array
+                                (
+                                    [0] => x
+                                    [1] => y
+                                )
+
+                        )
+
+                )
+
+        )
+
+)
+```
+
 ## Testing
 
 ``` bash
@@ -141,19 +166,29 @@ $ composer test
 
 ## Contributing
 
-Please see [CONTRIBUTING](CONTRIBUTING) for details.
+Please see [CONTRIBUTING](https://github.com/plinker-rpc/core/blob/master/CONTRIBUTING) for details.
 
 ## Security
 
-If you discover any security related issues, please contact me via https://cherone.co.uk instead of using the issue tracker.
+If you discover any security related issues, please contact me via [https://cherone.co.uk](https://cherone.co.uk) instead of using the issue tracker.
 
 ## Credits
 
 - [Lawrence Cherone](https://github.com/lcherone)
-- [All Contributors](../../contributors)
+- [All Contributors](https://github.com/plinker-rpc/core/graphs/contributors)
+
+
+## Development Encouragement
+
+If you use this code and make money from it and want to show your appreciation,
+please feel free to make a donation [https://www.paypal.me/lcherone](https://www.paypal.me/lcherone), thanks.
+
+## Sponsors
+
+Get your company or name listed here.
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE) for more information.
+The MIT License (MIT). Please see [License File](https://github.com/plinker-rpc/core/blob/master/LICENSE) for more information.
 
 See [organisations page](https://github.com/plinker-rpc) for additional components.
