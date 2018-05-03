@@ -18,7 +18,8 @@
 // global connect function
 namespace {
     if (!function_exists('\plinker_client')) {
-        function plinker_client($url, $secret, $options = []) {
+        function plinker_client($url, $secret, $options = [])
+        {
             $options = array_merge([
                 "secret" => $secret
             ], $options);
