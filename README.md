@@ -8,7 +8,7 @@
 [![Packagist Version](https://img.shields.io/packagist/v/plinker/core.svg?style=flat-square)](https://github.com/plinker-rpc/core/releases)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/plinker/core.svg?style=flat-square)](https://packagist.org/packages/plinker/core)
 
-Plinker PHP RPC client/server makes it really easy to link and execute generic PHP components on remote systems, while maintaining the feel of a local method call.
+PlinkerRPC PHP client/server makes it really easy to link and execute generic PHP components on remote systems, while maintaining the feel of a local method call.
 
 **Docs:** [https://plinker-rpc.github.io/development/core](https://plinker-rpc.github.io/development/core)
 
