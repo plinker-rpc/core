@@ -1,6 +1,3 @@
-**PlinkerRPC - Core**
-=========
-
 [![Build Status](https://travis-ci.org/plinker-rpc/core.svg?branch=master)](https://travis-ci.org/plinker-rpc/core)
 [![StyleCI](https://styleci.io/repos/103975908/shield?branch=master)](https://styleci.io/repos/103975908)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/plinker-rpc/core/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/plinker-rpc/core/?branch=master)
@@ -10,7 +7,7 @@
 
 PlinkerRPC PHP client/server makes it really easy to link and execute generic PHP components on remote systems, while maintaining the feel of a local method call.
 
-**Docs:** [https://plinker-rpc.github.io/development/core](https://plinker-rpc.github.io/development/core)
+**Docs:** [https://plinker-rpc.github.io/core](https://plinker-rpc.github.io/core)
 
 **New changes in version 3 include:**
 

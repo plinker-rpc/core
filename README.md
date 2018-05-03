@@ -10,7 +10,7 @@
 
 PlinkerRPC PHP client/server makes it really easy to link and execute generic PHP components on remote systems, while maintaining the feel of a local method call.
 
-**Docs:** [https://plinker-rpc.github.io/development/core](https://plinker-rpc.github.io/development/core)
+**Docs:** [https://plinker-rpc.github.io/core](https://plinker-rpc.github.io/core)
 
 **New changes in version 3 include:**
 
