@@ -15,21 +15,6 @@
  | Authors: Lawrence Cherone <lawrence@cherone.co.uk>                     |
  +------------------------------------------------------------------------+
  */
-// global connect function
-namespace {
-    if (!function_exists('\plinker_client')) {
-        function plinker_client($url, $secret, $options = [])
-        {
-            $options = array_merge([
-                "secret" => $secret
-            ], $options);
-            return new \Plinker\Core\Client(
-                $url,
-                $options
-            );
-        }
-    }
-}
 
 namespace Plinker\Core {
     /**

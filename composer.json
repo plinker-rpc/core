@@ -28,7 +28,10 @@
     "autoload": {
         "psr-4": {
             "Plinker\\Core\\": "src"
-        }
+        },
+        "files": [
+            "src/client_function.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
