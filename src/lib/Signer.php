@@ -121,7 +121,7 @@ final class Signer
         ) == $data["token"]) {
             return unserialize($data["data"]);
         } else {
-            return null;
+            throw new \Exception('Failed to verify payload');
         }
     }
 }

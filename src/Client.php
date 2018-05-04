@@ -26,27 +26,27 @@ namespace Plinker\Core {
          * @var
          */
         private $component = [];
-    
+
         /**
          * @var
          */
         private $chaining = false;
-    
+
         /**
          * @var
          */
         private $config;
-    
+
         /**
          * @var
          */
         private $curl;
-    
+
         /**
          * @var
          */
         private $signer;
-    
+
         /**
          * Class construct
          *
@@ -60,13 +60,13 @@ namespace Plinker\Core {
                 "server" => $server,
                 "secret" => null
             ], $config);
-    
+
             // check and set client timeout
             if (!isset($this->config["timeout"]) || !is_numeric($this->config["timeout"])) {
                 $this->config["timeout"] = 10;
             }
         }
-    
+
         /**
          * Magic getter method, which sets component
          *
@@ -80,12 +80,12 @@ namespace Plinker\Core {
                 $this->component = [];
                 $this->chaining = true;
             }
-    
+
             $this->component[] = ucfirst($component);
-    
+
             return $this;
         }
-    
+
         /**
          * Magic caller method, which calls component
          *
@@ -97,7 +97,7 @@ namespace Plinker\Core {
         {
             // set chaining state
             $this->chaining = false;
-    
+
             // load curl
             if (!$this->curl) {
                 $this->curl = new Lib\Curl([
@@ -105,20 +105,20 @@ namespace Plinker\Core {
                     'timeout' => $this->config['timeout']
                 ]);
             }
-    
+
             // load signer
             if (!$this->signer) {
                 $this->signer = new Lib\Signer([
                     'secret' => $this->config['secret']
                 ]);
             }
-    
+
             // change params array into numeric
             $params = array_values($params);
-    
+
             // unset local private key
             unset($this->config["plinker"]["private_key"]);
-    
+
             // encode payload
             $payload = $this->signer->encode([
                 "component" => implode('\\', $this->component),
@@ -126,32 +126,40 @@ namespace Plinker\Core {
                 "action" => $action,
                 "params" => $params
             ]);
-    
+
             // post request to plinker server
             $response = $this->curl->post($this->config["server"], $payload, [
                 "PLINKER: ".$payload["token"]
             ]);
-    
+
             // check curl error
             if (!empty($response['error'])) {
                 return $response;
             }
-    
+
+            // decode json
+            $body = json_decode($response['body'], true);
+
             // json decode (unpack) response body
-            if (empty($response['body']) || !($body = json_decode($response['body'], true))) {
-                $response['error'] = 'Failed to decode payload, invalid response';
-                return $response;
-            }
-    
-            // verify and decode response
-            if (!($body = $this->signer->decode($body))) {
+            if (empty($body['data'])) {
                 return [
-                    'body' => $response['body'],
-                    "code" => 422,
-                    "error" => 'Failed to decode payload'
+                    'body'  => $response['body'],
+                    "code"  => 422,
+                    "error" => 'Failed to decode payload, invalid response'
                 ];
             }
-    
+
+            // verify and decode response
+            try {
+                $body = $this->signer->decode($body);
+            } catch (\Exception $e) {
+                return [
+                    'body'  => $response['body'],
+                    "code"  => 401,
+                    "error" => $e->getMessage()
+                ];
+            }
+
             //
             return $body;
         }
