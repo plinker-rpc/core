@@ -102,7 +102,32 @@ Creating a server listener is done as follows:
             ]
         ]))->listen();
     }
-    
+
+## Exceptions
+
+Exceptions can be thrown by components, the client will catch them and throw a `\Plinker\Core\Exception\Server` exception which you can catch as normal.
+
+``` php
+try {
+
+    $client->component->method();
+
+} catch (\Exception | \Plinker\Core\Exception\Server $e) {
+    exit(get_class($e).': '.$e->getMessage());
+}
+```
+
+Non exception errors, including failing to decode or verify response will be returned as an array structure.
+
+``` text
+Array
+(
+    [body]  => {"body": "", "token": "abc"} # Raw response, for debugging.
+    [code]  => 401                          # HTTP error code.
+    [error] => "Error message"              # An error message if applicable.
+)
+```
+
 
 ## Methods
 
