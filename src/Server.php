@@ -292,17 +292,21 @@ final class Server
         // init component
         $component = new $ns($config);
 
-        // call method
-        if (method_exists($component, $action)) {
-            $response = call_user_func_array(
-                [
-                    $component,
-                    $action
-                ],
-                $this->input["params"]
-            );
-        } else {
-            $response = sprintf(Server::ERROR_ACTION, $action, $ns);
+        // call method, if exception return exception class
+        try {
+            if (method_exists($component, $action)) {
+                $response = call_user_func_array(
+                    [
+                        $component,
+                        $action
+                    ],
+                    $this->input["params"]
+                );
+            } else {
+                $response = sprintf(Server::ERROR_ACTION, $action, $ns);
+            }
+        } catch (\Exception | Exception\Server $e) {
+            return new Exception\Server($e->getMessage());
         }
 
         return $response;

@@ -160,6 +160,11 @@ namespace Plinker\Core {
                 ];
             }
 
+            // check if $body is Exception
+            if ($body instanceof \Exception) {
+                throw $body;
+            }
+
             //
             return $body;
         }
