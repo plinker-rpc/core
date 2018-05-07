@@ -305,7 +305,10 @@ final class Server
             } else {
                 $response = sprintf(Server::ERROR_ACTION, $action, $ns);
             }
-        } catch (\Exception | Exception\Server $e) {
+            // Catch exception and return Exception\Server - PHP 5.6 compat
+        } catch (\Exception $e) {
+            return new Exception\Server($e->getMessage());
+        } catch (Exception\Server $e) {
             return new Exception\Server($e->getMessage());
         }
 
