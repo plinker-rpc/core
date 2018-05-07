@@ -299,6 +299,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#exceptions" title="Exceptions" class="md-nav__link">
+    Exceptions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#methods" title="Methods" class="md-nav__link">
     Methods
   </a>
@@ -426,6 +433,13 @@
         <li class="md-nav__item">
   <a href="#server" title="Server" class="md-nav__link">
     Server
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exceptions" title="Exceptions" class="md-nav__link">
+    Exceptions
   </a>
   
 </li>
@@ -611,6 +625,28 @@
         <span class="p">]</span>
     <span class="p">]))</span><span class="o">-&gt;</span><span class="na">listen</span><span class="p">();</span>
 <span class="p">}</span>
+</pre></div>
+
+
+<h2 id="exceptions">Exceptions<a class="headerlink" href="#exceptions" title="Permanent link">&para;</a></h2>
+<p>Exceptions can be thrown by components, the client will catch them and throw a <code class="codehilite">\Plinker\Core\Exception\Server</code> exception which you can catch as normal.</p>
+<div class="codehilite"><pre><span></span><span class="x">try {</span>
+
+<span class="x">    $client-&gt;component-&gt;method();</span>
+
+<span class="x">} catch (\Exception | \Plinker\Core\Exception\Server $e) {</span>
+<span class="x">    exit(get_class($e).&#39;: &#39;.$e-&gt;getMessage());</span>
+<span class="x">}</span>
+</pre></div>
+
+
+<p>Non exception errors, including failing to decode or verify response will be returned as an array structure.</p>
+<div class="codehilite"><pre><span></span>Array
+(
+    [body]  =&gt; {&quot;body&quot;: &quot;&quot;, &quot;token&quot;: &quot;abc&quot;} # Raw response, for debugging.
+    [code]  =&gt; 401                          # HTTP error code.
+    [error] =&gt; &quot;Error message&quot;              # An error message if applicable.
+)
 </pre></div>
 
 
