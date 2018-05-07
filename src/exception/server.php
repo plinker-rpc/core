@@ -4,6 +4,6 @@ namespace Plinker\Core\Exception;
 /**
  * Server Exception
  */
-class Server extends \Exception
+class server extends \Exception
 {
 }
