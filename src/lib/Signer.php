@@ -18,6 +18,8 @@
 
 namespace Plinker\Core\Lib;
 
+use Opis\Closure\SerializableClosure;
+
 /**
  * Plinker\Core\Lib\Signer
  */
@@ -91,6 +93,15 @@ final class Signer
      */
     public function encode($data)
     {
+        // loop over params, look for closure
+        if (isset($data['params']) && is_array($data['params'])) {
+            foreach ($data['params'] as $key => $param) {
+                if (is_object($param) && ($param instanceof \Closure)) {
+                    $data['params'][$key] = new SerializableClosure($param);
+                }
+            }
+        }
+        
         $data = serialize($data);
 
         return [
