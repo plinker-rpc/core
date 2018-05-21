@@ -66,7 +66,8 @@ final class Server
     {
         $this->config = array_merge([
             "secret"      => null,
-            "allowed_ips" => []
+            "allowed_ips" => [],
+            "classes"     => []
         ], $config);
     }
     
