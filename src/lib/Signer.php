@@ -94,7 +94,11 @@ final class Signer
     public function encode($data)
     {
         // loop over params, look for closure
-        if (isset($data['params']) && is_array($data['params'])) {
+        if (
+            // not a server exception
+            !($data instanceof \Plinker\Core\Exception\Server) &&
+            // params should be set & array
+            isset($data['params']) && is_array($data['params'])) {
             foreach ($data['params'] as $key => $param) {
                 if (is_object($param) && ($param instanceof \Closure)) {
                     $data['params'][$key] = new SerializableClosure($param);
