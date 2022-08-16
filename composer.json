@@ -20,7 +20,7 @@
         }
     ],
     "require": {
-        "opis/closure": "^2.2.0"
+        "opis/closure": "^3.0.12"
     },
     "require-dev": {
         "phpunit/phpunit": "4.*"
